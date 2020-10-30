@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>ZX spectrum</title>
+    <style>
+        #speccy {
+            image-rendering: optimizeSpeed;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: -o-crisp-edges;
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
+            image-rendering: pixelated;
+            -ms-interpolation-mode: nearest-neighbor;
+        }
+    </style>
+    <script src="jdataview.js"></script>
+    <script src="jsspeccy-core.min.js"></script>
+    <script>
+        function go() {
+            var jsspeccy = JSSpeccy('speccy', {
+                'autostart': true,
+                'autoload': true,
+                'scaleFactor': 4,
+                'loadFile': 'http://zx.tipolisto.es/files/crazy.tap'
+            });
+        }
+     
+    </script>
+
+</head>
+<body>
+    <div id="speccy">BASIC MURCIA</div>
+    <script>
+        go()
+    </script>
+</body>
+</html>

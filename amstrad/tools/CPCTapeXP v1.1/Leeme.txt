@@ -1,0 +1,83 @@
+CPCTapeXP v1.1
+Copyright (C) 2006 Oscar Sanchez
+CPCMania - www.cpcmania.com
+
+Características
+---------------
+
+-Conversión de audio a CDT
+-Sistema de captura de audio integrado
+-Conversión desde ficheros Wav o captura de audio
+-Representación gráfica de la onda de audio, así como
+de los bloques convertidos
+-Soporte de ficheros Wav en 8 o 16 bit, mono o stereo
+-Grabación en Wav del audio capturado
+-Soporte sólo para cargadores estandard (por ahora)
+-Utilidad "CDT Info" para visualizar información de la
+estructura de los bloques de un CDT
+-Utilidad "CDT Studio", para mezclar bloques dos CDTs,
+reordenar bloques, borrarlos, editarlos (ascii y hex)...
+-Funciona en cualquier Windows 9x, Me, 2000, XP...
+-Facil uso
+
+
+Requirimientos Minimos 
+----------------------
+
+PC con Windows
+Memoria suficiente o disco duro de sobra
+
+
+Instalacion y Uso
+-----------------
+
+CPCTapeXP no requiere instalación ninguna, no necesita ningún
+driver o librería adicional, simplemente ejecuta "CPCTapeXP.exe".
+
+Para la captura de audio el programa utiliza los valores que tengamos en
+Panel de Control->Dispositivos de sonido y audio y despues la pestaña audio, ahí
+configuraremos el dispositivo de grabación por defecto y en el botón volumen podremos
+modificar los volumenes de entrada y seleccionar si usamos mic o line in.
+
+
+Terminos de Uso
+---------------
+
+Se proporciona este software "tal cual", sin cualquier garantía hecha en cuanto a su conveniencia
+o aptitud para cualquier uso particular. Puede contener errores, así que use esta herramienta en
+su propio riesgo. No tomamos ninguna responsabilidad para ningun daño que se pueda causar 
+inintencionalmente con su uso.
+
+
+Licencia
+--------
+
+Si estas interesado en redistribuir CPCTapeXP, por favor envia un e-mail a mochilote@cpcmania.com
+con los detalles.
+
+
+Informar de Errores
+-------------------
+
+Si encuentras errores, por favor visita www.cpcmania.com y descarga la ultima version, para ver si
+el problema está ya resuelto.
+
+Si no lo esta, por favor envia un informe del error a:
+
+	mochilote@cpcmania.com
+
+
+Agradecimientos
+---------------
+
+Al foro sobre el Amstrad en español http://amstradcpc.foro.st por todos sus entusiastas, quienes
+me han resuelto un monton de dudas sobre el amstrad CPC, gracias especialmente a deepfb, cpc_maniaco,
+Kaosoverride, Tied, Transformer, Miguelsky...
+
+A Litos, por su estupenda web, http://www.amstrad-esp.com
+
+A César Nicolás González, por su estupendo emulador de Amstrad CPC, CPCE http://cpce.emuunlim.com
+
+Kevin Thacker, por su imprescindible pagina y contribución, http://andercheran.aiind.upv.es/~amstrad
+
+Para todos los que leeis esta linea, que sereis muy pocos :-)
