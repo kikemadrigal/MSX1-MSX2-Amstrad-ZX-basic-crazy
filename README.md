@@ -14,7 +14,7 @@ http://zx.tipolisto.es/crazy
 
 ## Amstrad
 
-http://amstrad.tipolisto.es/files/cpc
+https://github.com/kikemadrigal/crazy/blob/main/amstrad/disco.dsk
 
 <img src=images/3.PNG width=300>
 
