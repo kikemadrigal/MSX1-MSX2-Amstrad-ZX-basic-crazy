@@ -1,0 +1,6 @@
+machine Sony_HB-55P
+ext Sony_HBD-50
+ext ram32k
+diska disco.dsk
+
+

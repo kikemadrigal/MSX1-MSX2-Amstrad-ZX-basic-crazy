@@ -20,39 +20,45 @@
 1 '       |_create:          7500'
 1 '       --update:          7600'
 1 ' Sprite definitions:      8000'
-1 ' Maps definitions:       9000~'
+1 ' Maps definitions:       12000~'
 
 
 
 1 ' Configuraión global 
-1 ' color letra negro, fondo letra: azul claro, borde blanco, quitamos las letras que aparecen abajo'
-10 color 1,7,15:key off:open "grp:" as #1
-20 cls:screen 2,0,0
 1 'Inicilizamos dispositivo: 003B, inicilizamos teclado: 003E'
-25 defusr=&h003B:a=usr(0):defusr1=&h003E:a=usr1(0)
+10 defusr=&h003B:a=usr(0):defusr1=&h003E:a=usr1(0)
+1 ' color letra negro, fondo letra: azul claro, borde blanco, quitamos las letras que aparecen abajo'
+20 color 1,7,15:key off
+30 cls:screen 2,2,0
+35 open "grp:" as #1
+40 bload"xbasic.bin",r
 1 'Cargamos los sprites'
-30 gosub 10000
+50 gosub 10000
+1 'Inicializamos variables de mapa'
+90 gosub 11200
 1 ' Variables el juego'
-40 co=0
+120 let co=0
 1 'Inicializamos el personaje'
-50 gosub 5000
+130 gosub 5000
 1 'Inicialización enemigo'
-60 gosub 6000
+140 gosub 6000
 1 'Inicialización paquete'
-70 gosub 7000 
+150 gosub 7000 
+
 
 
 1'------------------------------------'
 1'  Pantalla de Bienvenida y records 
 1'------------------------------------'
-100 preset (10,30):  print #1,"@@@@   @@@@    @    @@@@   @  @ "
-110 preset (10,40):  print #1,"@      @@     @ @    @       @  "
-120 preset (10,50):  print #1,"@@@@   @  @  @   @  @@@@     @  "
-130 preset (10,120): print #1,"Tu mujer se ha vuelto loca porque no os vais a pasear y ha empezado a tirar tus consolas y juegos por la ventana"
-1 ' Con inverse ponemos el fondo de los carcacteres en el frente y el frente en el fondo'
-140 preset (10,160): print #1, "Cursores para mover, pulsa una tecla para continuar"
-1 'Si no se pulsa una tecla se queda en blucle infinito'
-150 if inkey$="" then goto 150
+
+1 '200 cls:preset (10,30):  print #1,"@@@@   @@@@    @    @@@@   @  @ "
+1 '210 preset (10,40):  print #1,"@      @@     @ @    @       @  "
+1 '220 preset (10,50):  print #1,"@@@@   @  @  @   @  @@@@     @  "
+1 '230 preset (10,120): print #1,"Tu mujer se ha vuelto loca porque no os vais a pasear y ha empezado a tirar tus consolas y juegos por la ventana"
+1 '1 ' Con inverse ponemos el fondo de los carcacteres en el frente y el frente en el fondo'
+1 '240 preset (10,160): print #1, "Cursores para mover, pulsa una tecla para continuar"
+1 '1 'Si no se pulsa una tecla se queda en blucle infinito'
+1 '250 if inkey$="" then goto 250
 
 
 
@@ -71,14 +77,23 @@
 1'---------------------------------------------------------------------------------------------------------'
 1'-------------------------         Pantalla 1 /screen 1                            -----------------------        
 1'---------------------------------------------------------------------------------------------------------'
-400 cls
-1 'Pintamos l pztlla 1
-430 gosub 9000
+1 'Ponemos un 0 el el bit 7 del rgistro 1 del vdp para poner la pantalla del color del borde'
+1 'para que no se vea la carga del archivo de tileset'
+1 'La fuente tendrá un color blanco, el marco también'
+400 color 15,7,15
+410 vdp(1)=vdp(1) xor 64
+1 'Cargamos los tiles en RAM'
+420 bload"tileset.bin",s
+430 gosub 11300
+440 'gosub 12000
+450 vdp(1)=vdp(1) or 64
+1 'Mostramos un mensaje'
+460 'gosub 2800
 1 'Con el 0 le decimos que es la barra espaciadora y no los botones de los joystick'
 1 'Cunado se pulse la barra espaciadora hiremos a la línea 11100'
-440 'on strig gosub 11100:strig(0) on
+470 'on strig gosub 11100:strig(0) on
 1 'Activamos los intervalos para que cada segundo redibuje la linea de arriba'
-460 'on interval=50 gosub 9000:interval on:time=0
+480 'on interval=50 gosub 9000:interval on:time=0
 
 
 
@@ -93,10 +108,10 @@
     2020 gosub 5100
     1 'Actualizamos enemigo'
     2030 gosub 6200
+    1 'Render enemigo'
+    2040 GOSUB 6300
     1 'Actualizamos los paquetes'
-    2040 if nb>0 then gosub 7600
-    1 ' Mostramos la información'
-    2050 'gosub 2800
+    2050 gosub 7600
     1 'bucle'
 2090 go to 2000
 1 ' ----------------------'
@@ -124,12 +139,11 @@
 1 '     INPUT SYSTEM'
 1 ' ----------------------'
 1 '2 Sistema de input'
-    2500 'px=x:py=y 
-    2510 on stick(0) gosub 2510,2510,2550,2510,2510,2510,2570
+    2500 on stick(0) gosub 2510,2510,2550,2510,2510,2510,2570
     2520 if stick(0)=0 then ps=2
 2530 return
 1 '3 derecha'
-2550 x=x+8:ps=4:return
+2550 x=x+8:ps=5:return
 1 '7 izquierda'
 2570 x=x-8:ps=3:return
 1 '1 arriba'
@@ -145,19 +159,19 @@
 1 '     COLLISION SYSTEM'
 1 ' ----------------------'
     1 'Colision del player con la pantalla'
-    2600 ' nada'
-2690 return
+   1' 2600 ' nada'
+1' 2690 return
 
 1 ' ----------------------'
 1 '     RENDER SYSTEM'
 1 ' ----------------------'
-    2700 'nada'
-2790 return
+   1'2700 'nada'
+1' 2790 return
 
 1 ' ----------------------'
 1 '     HUD'
 1 ' ----------------------'
-    2800 preset(0,180) :print #1,"Time "co", nb: "nb", ex: "int(ex)
+    2800 PRESET(0,0):PRINT#1,"holaaaaaaaaaa"
 2890 return
 
 
@@ -171,8 +185,12 @@
     1 ' Hay que pensar que son coordenadas de 8x8px para el print, del c$ al g$ son sprites'
     1 ' Como realmente defino estas variables que contienen la definición del string del sprite en 
     1 ' las línea 8040,8090, 8240,8290,etc, y eso se hace al principio, no las puedo inicilizar aquí'
-    5000 x=15*8:y=18*9:pp=0:ps=2
-5030 return
+    1 '15*8=120 ,18*9=162'
+    5000 x=120
+    5010 y=162
+    5020 pp=0
+    5030 ps=2
+5040 return
 
 1 'update player'
     5100 put sprite pp,(x,y),1,ps
@@ -196,14 +214,18 @@
     6200 co=co+1
     6210 epx=ex:epy=ey
     1 ' cada vez que sea 10 el contador generamos un número aleatorio, borramos el anterior y creamos un paquete nuevo'
-    6220 if co mod 10=0 then ex=rnd(1)*(160-50)+50:preset (epy,epx):print #1," ":co=0: gosub 7500
+    6220 if co mod 10=0 then ex=rnd(1)*(160-50)+50:co=0: gosub 7500:beep
     1 'Pintamos el paquete'
     6230 'if contador<10 then print at ey,ex;b$
     1 'Volvemos a pinta la línea de la casa que se borra'
     6240 'go sub 9100
-    6250 put sprite 1,(ex,ey),1,es
-     1 'put sprite pp,(x,y),1,ps
+    1 'put sprite pp,(x,y),1,ps
 6290 return
+
+1 'Render'
+    6300 put sprite 1,(ex,ey),1,es
+6310 return
+
 
 
 1 '---------------------------------------------------------'
@@ -211,24 +233,27 @@
 1 '---------------------------------------------------------'
 1 'Init paquete'
     1 'El sprite del barril es el 7'
-    7000 dim x(10), y(10):nb=1:bs=7
+    1 'nb=número barril, se utiliza para ir ocupando el espacio de memoria oportuno'
+    7000 dim x(10), y(10):nb=0:bs=7
 7010 return
 
 1 'Crear paquete'
-    7500 nb=nb+1
-    7510 x(nb)=ex:y(nb)=ey
+    7500 x(nb)=ex:y(nb)=ey
+    7510 nb=nb+1
 7590 return
 
 1 ' update paquete'
-    7600 for i=1 to nb-1
+    7600 for i=0 to nb-1
     1 'Si el paquete llega hasta abajo, lo borramos poniendo el último en su puesto y restamos 1 para que no lo pinte'
-        7610 if y(i)>190 then y(i)=y(nb):x(i)=x(nb):nb=nb-1:preset(x(i),y(i)+1):print #1," "
+        7610 if y(i)>190 then y(i)=y(nb):x(i)=x(nb):nb=nb-1
         1 'Aumentamos la y en 1 para que se mueva'
         7620 y(i)=y(i)+8
         1 'Lo pintamos y borramos el punto anterior'
-        7630 preset (y(i),x(i)):put sprite 2+i,(x(i),y(i)),1,bs:preset (x(i),y(i)-1):print #1," "
+        7630 put sprite 2+i,(x(i),y(i)),1,bs
     7640 next i
 7690 return
+
+
 
 
 
@@ -242,25 +267,87 @@
     10000 RESTORE
     1 ' vamos a meter 5 definiciones de sprites nuevos que serán 4 para el personaje y uno para la bola'
     10010 FOR I=0 TO 7:SP$=""
-        10020 FOR J=1 TO 8:READ A$
+        10020 FOR J=1 TO 32:READ A$
             10025 SP$=SP$+CHR$(VAL("&H"+A$))
         10030 NEXT J
         10040 SPRITE$(I)=SP$
     10050 NEXT I
     10060 return 
-    1 'Mujer lazando paquete'
-    8050 DATA FF,FF,FF,42,5A,5A,7E,3C
-    1 'Mujer normal'
-    8060 DATA 00,00,00,00,18,18,7E,BD
-    1 'player con las manos arriba de frente'
-    8070 DATA 00,42,5A,7E,18,18,24,24
-    1 'Player mirando hacia la izquierda'
-    8080 DATA 00,18,18,3C,3C,3C,28,28
-    8090 DATA 00,18,18,3C,3C,3C,18,18
-    8100 DATA 00,18,18,3C,3C,3C,14,14
-    8110 DATA 00,18,18,3C,3C,3C,18,18
-    8120 DATA 00,00,00,00,FF,FF,FF,FF
-8190 return
+
+    10120 DATA 00,0F,0F,0F,04,05,05,03
+    10130 DATA 01,01,03,06,04,07,01,01
+    10140 DATA 00,F8,F8,F8,10,D0,D0,60
+    10150 DATA 40,40,60,30,10,F0,40,40
+
+    10160 DATA 00,00,00,00,00,01,01,0F
+    10170 DATA 01,01,03,06,04,07,01,06
+    10180 DATA 00,00,00,00,00,C0,C0,78
+    10190 DATA 40,40,60,30,10,F0,40,30
+
+    10200 DATA 00,00,00,00,00,11,11,0C
+    10210 DATA 03,03,03,01,01,01,02,00
+    10220 DATA 00,00,00,00,00,88,88,20
+    10230 DATA C0,C0,C0,80,80,80,40,00
+
+    10240 DATA 00,00,00,00,00,01,01,00
+    10250 DATA 03,03,07,01,02,02,06,00
+    10260 DATA 00,00,00,00,00,80,80,00
+    10270 DATA C0,C0,C0,80,40,40,C0,00
+
+    10280 DATA 00,00,00,00,00,01,01,00
+    10290 DATA 03,03,07,01,01,01,03,00
+    10300 DATA 00,00,00,00,00,80,80,00
+    10310 DATA C0,C0,C0,80,80,80,80,00
+
+    10320 DATA 00,00,00,00,00,01,01,00
+    10330 DATA 03,03,03,01,02,02,03,00
+    10340 DATA 00,00,00,00,00,80,80,00
+    10350 DATA C0,C0,E0,80,40,40,60,00
+
+    10360 DATA 00,00,00,00,00,01,01,00
+    10370 DATA 03,03,03,01,01,01,01,00
+    10380 DATA 00,00,00,00,00,80,80,00
+    10390 DATA C0,C0,E0,80,80,80,C0,00
+
+    10400 DATA 00,00,00,00,00,00,00,00
+    10410 DATA 00,00,00,00,0F,0F,0F,00
+    10420 DATA 00,00,00,00,00,00,00,00
+    10430 DATA 00,00,00,00,F0,F0,F0,00
+11590 return
+
+
+1 '---------------------------------------------------------'
+1 '------------------------MAPA ----------------------'
+1 '---------------------------------------------------------'
+1 ' inicializar_mapa
+    1 'mw=mapa mundo, contiene los mapas o niceles correspondientes al 1 mundo'
+    1 'ms=mapa seleccioando, lo hiremos cambiando    
+    1 'mm= maximo de mapas
+    1 'mc= mapa cambia, lo utilizaremos para cambiar los copys y así cambiar la pantalla
+    1 'md=Mapa dirección de la yabla de nombres'
+    11200 mw=0:ms=0:mm=1:mc=0:md=0
+11220 return
+
+1 'Cargar mapa de disco y meterlo en la VRAM
+    1 '1 cargamos el mapa
+    1 'Cada mapa ocupa 862 bytes'
+    1 'md=mapa dirección, la dirección c001 se la he puesto yo en el archivo binario cuando lo creé'
+    1 'El archivo tan solo contiene los datos de la definición de los mapas'
+    11300 if mw=0 then bload"word0.bin",r
+    11310 _turbo on 
+    11320 md=&hc001
+    11330 'if mw=1 then bload"word1.bin",r
+    11340 for i=0 to mm-1
+        1 'Copia desde base(10) 6144 (&h1800) hasta la &h1aff,6144+768=6912
+        11350 for j=6144 to 6912
+                1 'Como los tiles los habíamos cargado previamente en RAM ahora solo los pasamos a VRAM'
+                11360 vpoke j,peek(md)
+                11370 md=md+1
+        11380 next j  
+    11410 next i
+    11420 _turbo off
+11490 return
+
 
 
 1 '---------------------------------------------------------'
@@ -268,16 +355,16 @@
 1 '---------------------------------------------------------'
 1 'Rutina pintar escenario'
     1' Vamos a pintar el suelo
-    9000 LINE(0,160)-(256,170),3,bf
+    12000 LINE(0,160)-(256,170),3,bf
     1 'Vamos a pintar la casa'
     1 ' b=desplazamos el lapiz de forma absoluta y sin dibujar la trayectoria 40 pixeles eje x y 160 eje y  '
     1 'c= le ponemos el valor negro=1'
     1 'up=le decimos que dibuje 100 pixeles hacia arriba'
-    9010 draw ("bm40,160c1u100")
-    9020 draw ("r180d100")
+    12010 draw ("bm40,160c1u100")
+    12020 draw ("r180d100")
     1 ' dibujamos el altillo'
-    9030 draw("bm50,60u20r160d20")
-9090 return
+    12030 draw("bm50,60u20r160d20")
+12040 return
 
 
 
