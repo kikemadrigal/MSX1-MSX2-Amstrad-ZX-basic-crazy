@@ -64,8 +64,9 @@
 490 on sprite gosub 2600:sprite on
 1 'Mostramos la información del HUD'
 500 gosub 2800:gosub 2900
+1 'cargamos la música en la RAM y la llamamos desde basic'
 510 bload"music.bin":defusr2=&h9500:a=usr2(0):defusr3=&h9509
-1 'Activamos los intervalos para que cada segundo redibuje la linea de arriba'
+1 'Activamos los intervalos para que cada 2/60 segundos reproduzca un bloque de música'
 520 on interval=2 gosub 2200:interval on
 
 
