@@ -2,10 +2,10 @@
 20 color 1,7,15:key off:defint a-z
 30 screen 2,2,0
 35 open "grp:" as #1
-40 'bload"xbasic.bin",r
+40 bload"xbasic.bin",r
 50 gosub 10000
 90 gosub 11200
-120 let co=0
+120 let co=0: c2=0
 130 gosub 5000
 140 gosub 6000
 150 gosub 7000 
@@ -18,8 +18,9 @@
 490 on sprite gosub 2600:sprite on
 500 gosub 2800:gosub 2900
 510 bload"music.bin":defusr2=&h9500:a=usr2(0):defusr3=&h9509
-520 on interval=2 gosub 2200:interval on
-    2000 gosub 2500
+520 'on interval=2 gosub 2200:interval on
+    2000 a=usr3(0)
+    2005 gosub 2500
     2010 gosub 2700
     2020 gosub 5100
     2030 gosub 6200
@@ -28,8 +29,9 @@
     2060 gosub 7700
     2070 if pc=0 then ml=ml+1: gosub 11300:pc=5
 2090 go to 2000
-2200 a=usr3(0)
-2210 return
+2200 c2=c2+1
+    2210 if c2=2 then a=usr3(0):c2=0
+2220 return
     2500 'px=x:py=y
     2510 on stick(0) gosub 2580,2500,2550,2500,2590,2500,2570
     2520 if stick(0)=0 then ps=2
@@ -146,7 +148,7 @@
 11220 return
     11300 if ml=0 then bload"level0.bin",r
     11310 if ml=1 then bload"level1.bin",r
-    11320 '_turbo on 
+    11320 _turbo on 
     11330 md=&h9201
     11340 for i=0 to mm-1
         11350 for j=6144+256 to 6912
@@ -154,7 +156,7 @@
                 11370 md=md+1
         11380 next j  
     11410 next i
-    11420 '_turbo off
+    11420 _turbo off
 11490 return
 12000 'if ml=0 then gosub 
 12100 return

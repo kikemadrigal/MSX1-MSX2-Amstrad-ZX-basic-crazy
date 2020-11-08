@@ -31,7 +31,7 @@
 20 color 1,7,15:key off:defint a-z
 30 screen 2,2,0
 35 open "grp:" as #1
-40 'bload"xbasic.bin",r
+40 bload"xbasic.bin",r
 
 
 1 'Cargamos los sprites'
@@ -39,7 +39,7 @@
 1 'Inicializamos variables de mapa'
 90 gosub 11200
 1 ' Variables el juego'
-120 let co=0
+120 let co=0: c2=0
 1 'Inicializamos el personaje'
 130 gosub 5000
 1 'Inicialización enemigo'
@@ -64,9 +64,10 @@
 490 on sprite gosub 2600:sprite on
 1 'Mostramos la información del HUD'
 500 gosub 2800:gosub 2900
+1 'cargamos la música en la RAM y la llamamos desde basic'
 510 bload"music.bin":defusr2=&h9500:a=usr2(0):defusr3=&h9509
-1 'Activamos los intervalos para que cada segundo redibuje la linea de arriba'
-520 on interval=2 gosub 2200:interval on
+1 'Activamos los intervalos para que cada 2/60 segundos reproduzca un bloque de música'
+520 'on interval=2 gosub 2200:interval on
 
 
 1 'Solo se saldrá de este bucle si se ha llegado al final de la pantalla'
@@ -74,8 +75,9 @@
 1 '      MAIN LOOP
 1 ' ----------------------'
     1 'bluce principal'
+    2000 a=usr3(0)
     1 'Capturamos las teclas'
-    2000 gosub 2500
+    2005 gosub 2500
     1 'Chequeamos las colisiones'
     2010 gosub 2700
     1 'actualizamos el player'
@@ -102,8 +104,9 @@
 
 
 
-2200 a=usr3(0)
-2210 return
+2200 c2=c2+1
+    2210 if c2=2 then a=usr3(0):c2=0
+2220 return
 
 
 
@@ -364,7 +367,7 @@
     1 'El archivo tan solo contiene los datos de la definición de los mapas'
     11300 if ml=0 then bload"level0.bin",r
     11310 if ml=1 then bload"level1.bin",r
-    11320 '_turbo on 
+    11320 _turbo on 
     11330 md=&h9201
     11340 for i=0 to mm-1
         1 'Copia desde base(10) 6144 (&h1800) hasta la &h1aff,6144+768=6912
@@ -374,7 +377,7 @@
                 11370 md=md+1
         11380 next j  
     11410 next i
-    11420 '_turbo off
+    11420 _turbo off
 11490 return
 
 
