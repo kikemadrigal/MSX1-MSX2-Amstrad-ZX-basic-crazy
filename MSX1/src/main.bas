@@ -31,7 +31,9 @@
 20 color 1,7,15:key off:defint a-z
 30 screen 2,2,0
 35 open "grp:" as #1
-40 bload"xbasic.bin",r
+40 'bload"xbasic.bin",r
+
+
 1 'Cargamos los sprites'
 50 gosub 10000
 1 'Inicializamos variables de mapa'
@@ -57,13 +59,14 @@
 1 'Con el 0 le decimos que es la barra espaciadora y no los botones de los joystick'
 1 'Cunado se pulse la barra espaciadora hiremos a la línea 11100'
 470 'on strig gosub 11100:strig(0) on
-1 'Activamos los intervalos para que cada segundo redibuje la linea de arriba'
-480 'on interval=50 gosub 9000:interval on:time=0
+
 1 'Activamos las interrupciones de los sprites para detectar las colisiones'
 490 on sprite gosub 2600:sprite on
 1 'Mostramos la información del HUD'
 500 gosub 2800:gosub 2900
-
+510 bload"music.bin":defusr2=&h9500:a=usr2(0):defusr3=&h9509
+1 'Activamos los intervalos para que cada segundo redibuje la linea de arriba'
+520 on interval=2 gosub 2200:interval on
 
 
 1 'Solo se saldrá de este bucle si se ha llegado al final de la pantalla'
@@ -99,7 +102,8 @@
 
 
 
-
+2200 a=usr3(0)
+2210 return
 
 
 
@@ -360,8 +364,8 @@
     1 'El archivo tan solo contiene los datos de la definición de los mapas'
     11300 if ml=0 then bload"level0.bin",r
     11310 if ml=1 then bload"level1.bin",r
-    11320 _turbo on 
-    11330 md=&hc001
+    11320 '_turbo on 
+    11330 md=&h9201
     11340 for i=0 to mm-1
         1 'Copia desde base(10) 6144 (&h1800) hasta la &h1aff,6144+768=6912
         11350 for j=6144+256 to 6912
@@ -370,7 +374,7 @@
                 11370 md=md+1
         11380 next j  
     11410 next i
-    11420 _turbo off
+    11420 '_turbo off
 11490 return
 
 

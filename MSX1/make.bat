@@ -1,6 +1,18 @@
 @echo off
 set TARGET_DSK=disco.dsk
 
+rem sjasm (http://www.xl2s.tk/) es un compilador de ensamblador z80 que puedo convertir tu código ensamblador en los archivos binarios.rom y .bin
+rem necesitamos el .bin de la pantalla de carga y del reproductor de música
+start /wait tools/sjasm/sjasm.exe src/music.asm
+start /wait tools/sjasm/sjasm.exe src/level0.asm
+start /wait tools/sjasm/sjasm.exe src/level1.asm
+move /Y music.bin ./bin
+move /Y level0.bin ./bin
+move /Y level1.bin ./bin
+rem del /F src/loader.lst
+rem del /F src/music.lst
+
+
 if exist %TARGET_DSK% del /f /Q %TARGET_DSK%
 copy tools\Disk-Manager\main.dsk .\%TARGET_DSK%
 
