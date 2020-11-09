@@ -1,6 +1,6 @@
 5 'bload"xbasic.bin",r
 10 defusr=&h003B:a=usr(0):defusr1=&h003E:a=usr1(0):defusr2=&H90:a=usr2(0)
-15 defusr=&H41:defusr1=&H44
+15 defusr3=&H41:defusr4=&H44
 20 color 1,7,15:key off:defint a-z
 30 screen 2,2,0
 35 open "grp:" as #1
@@ -11,10 +11,10 @@
 140 gosub 6000
 150 gosub 7000 
 160 gosub 13200
-400 a=usr(0)
+400 a=usr3(0)
 420 bload"tileset.bin",s
 430 gosub 11300
-450 a=usr1(0)
+450 a=usr4(0)
 490 on sprite gosub 2600:sprite on
 500 gosub 2800:gosub 2900
 510 'bload"music.bin":defusr2=&h9500:a=usr2(0):defusr3=&h9509
@@ -51,7 +51,6 @@
     2600 ee=6: gosub 2300:sprite off: pc=pc-1:gosub 2900: ft=ft-1
     2610 line (120,20)-(180,30),7,bf
     2620 preset (120,20):  print #1,"Cogido!"
-    2630 gosub 2900
 2690 return
     2700 if x>256-16 then x=256-16
     2710 if x<=0 then x=0
@@ -64,14 +63,14 @@
     2820 PRESET(10,15):PRINT#1,"Faltan: "
     2830 'PRESET(10,25):PRINT#1,"Vidas: "
     2840 'PRESET(10,35):PRINT#1,"Modelo: "
-    2850 PRESET(10,45):PRINT#1,"num: "
+    2850 'PRESET(10,45):PRINT#1,"num: "
 2860 return
     2900 line (80,0)-(256,60),7,bf
     2960 PRESET(80,5):PRINT#1,ml
     2970 PRESET(80,15):PRINT#1,pc
     2980 'PRESET(80,25):PRINT#1,pe
     2990 'PRESET(80,35):PRINT#1,fm(0)
-    3000 PRESET(80,45):PRINT#1,ft
+    3000 'PRESET(80,45):PRINT#1,ft
 3020 return
     5000 x=120:y=162:px=x:py=y:pv=8
     5010 pp=0:ps=2
@@ -94,7 +93,6 @@
     6220 'epx=ex:epy=ey
     6250 if co mod 20=0 and er=0 then ex=rnd(1)*(160-50)+50: co=0:ee=5:es=0:gosub 2300:gosub 7500:sprite on
     6260 if co mod 20=0 and er=1 then nu=rnd(1)*13: ex=e(nu): ey=c(nu): co=0:ee=5:es=0:gosub 2300:gosub 7500:sprite on
-    6270 if co mod 20=0 then gosub 2900
 6290 return
     6300 put sprite 1,(ex,ey),1,es
 6310 return
@@ -113,12 +111,11 @@
     7600 if ft<=0 then return
     7605 for i=0 to ft-1
         7610 y(i)=y(i)+fv(i)
-        7620 if y(i)>150 then sprite off
-        7630 if y(i)>150 then x(i)=x(ft-1):y(i)=y(ft-1):fs(ft-1)=8:fa(ft-1)=0:ft=ft-1:ee=10:gosub 2300
+        7630 if y(i)>150 then x(i)=x(ft-1):y(i)=y(ft-1):fs(ft-1)=8:ft=ft-1:ee=10:sprite off:gosub 2300
     7640 next i
 7690 return
     7700 for i=0 to ft-1
-        7710 if fa(i)=1 then put sprite 2+i,(x(i),y(i)),fc(i),fs(i)
+        7710 put sprite 2+i,(x(i),y(i)),fc(i),fs(i)
     7720 next i
 7730 return 
     10000 RESTORE
@@ -170,7 +167,8 @@
 11220 return
     11300 if ml=0 then bload"level0.bin",r:gosub 12000
     11310 if ml=1 then bload"level1.bin",r:gosub 12300:ee=7:gosub 2300
-    11315 vdp(1)=vdp(1) xor 64
+    11315 'vdp(1)=vdp(1) xor 64
+    11316 a=usr3(0)
     11320 '_turbo on
     11330 md=&hb001
     11340 for i=0 to mm-1
@@ -180,7 +178,8 @@
         11380 next j  
     11410 next i
     11420 '_turbo off
-    11430 vdp(1)=vdp(1) or 64
+    11430 'vdp(1)=vdp(1) or 64
+    11440 a=usr4(0)
 11490 return
     12000 pc=3
 12090 return

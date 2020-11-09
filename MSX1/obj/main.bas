@@ -28,7 +28,7 @@
 5 'bload"xbasic.bin",r
 1 'Inicilizamos dispositivo: 003B, inicilizamos teclado: 003E'
 10 defusr=&h003B:a=usr(0):defusr1=&h003E:a=usr1(0):defusr2=&H90:a=usr2(0)
-15 defusr=&H41:defusr1=&H44
+15 defusr3=&H41:defusr4=&H44
 1 ' color letra negro, fondo letra: azul claro, borde blanco, quitamos las letras que aparecen abajo'
 20 color 1,7,15:key off:defint a-z
 30 screen 2,2,0
@@ -50,13 +50,13 @@
 1 'Ponemos un 0 el el bit 7 del rgistro 1 del vdp para poner la pantalla del color del borde'
 1 'para que no se vea la carga del archivo de tileset'
 1 '400 vdp(1)=vdp(1) xor 64
-400 a=usr(0)
+400 a=usr3(0)
 1 'Cargamos los tiles en RAM'
 420 bload"tileset.bin",s
 1 'Cargamos el mapa e inicializamos las pantallas con los valores de numero de enemigos, aparatos a capturar,etc'
 430 gosub 11300
 1 '450 vdp(1)=vdp(1) or 64
-450 a=usr1(0)
+450 a=usr4(0)
 1 'Activamos las interrupciones de los sprites para detectar las colisiones'
 490 on sprite gosub 2600:sprite on
 1 'Mostramos la información del HUD'
@@ -180,7 +180,7 @@
     2610 line (120,20)-(180,30),7,bf
     2620 preset (120,20):  print #1,"Cogido!"
     1 'Solo para debugger'
-    2630 gosub 2900
+    1' 2630 gosub 2900
 2690 return
 1 'Colsion del player con la pantalla'
     2700 if x>256-16 then x=256-16
@@ -207,7 +207,7 @@
     2820 PRESET(10,15):PRINT#1,"Faltan: "
     2830 'PRESET(10,25):PRINT#1,"Vidas: "
     2840 'PRESET(10,35):PRINT#1,"Modelo: "
-    2850 PRESET(10,45):PRINT#1,"num: "
+    2850 'PRESET(10,45):PRINT#1,"num: "
 2860 return
 
 
@@ -219,7 +219,7 @@
     2970 PRESET(80,15):PRINT#1,pc
     2980 'PRESET(80,25):PRINT#1,pe
     2990 'PRESET(80,35):PRINT#1,fm(0)
-    3000 PRESET(80,45):PRINT#1,ft
+    3000 'PRESET(80,45):PRINT#1,ft
 3020 return
 
 
@@ -255,7 +255,7 @@
     1 'Componente position'
     6000 ex=16*8:ey=5*17
     6010 epx=0:epy=0
-    1 'La velocidad en la que vuelve a tirar un paquete'
+    1 'La velocidad en la que vuelve a tirar un'
     6015 ev=10
     1 'Para saber si el enemig tiene que seguir una ruta 0 es que no'
     6020 er=0:nu=0
@@ -288,7 +288,7 @@
     6250 if co mod 20=0 and er=0 then ex=rnd(1)*(160-50)+50: co=0:ee=5:es=0:gosub 2300:gosub 7500:sprite on
     6260 if co mod 20=0 and er=1 then nu=rnd(1)*13: ex=e(nu): ey=c(nu): co=0:ee=5:es=0:gosub 2300:gosub 7500:sprite on
     1 'Solo para debugger'
-    6270 if co mod 20=0 then gosub 2900
+    1' 6270 if co mod 20=0 then gosub 2900
 6290 return
 
 1 'Render'
@@ -338,17 +338,15 @@
         1 'Aumentamos la y en 1 para que se mueva'  
         7610 y(i)=y(i)+fv(i)
         1 'Si el paquete llega abajo '
-        1 'Le cambiamos el sprites y le quitamos las colsiones'
-        7620 if y(i)>150 then sprite off
         1 'le ponemos que no está activo, y ponemos un sonido de golpe'
-        7630 if y(i)>150 then x(i)=x(ft-1):y(i)=y(ft-1):fs(ft-1)=8:fa(ft-1)=0:ft=ft-1:ee=10:gosub 2300
+        7630 if y(i)>150 then x(i)=x(ft-1):y(i)=y(ft-1):fs(ft-1)=8:ft=ft-1:ee=10:sprite off:gosub 2300
     7640 next i
 7690 return
 
 1 'render paquete'
     7700 for i=0 to ft-1
         1 'Lo pintamos'
-        7710 if fa(i)=1 then put sprite 2+i,(x(i),y(i)),fc(i),fs(i)
+        7710 put sprite 2+i,(x(i),y(i)),fc(i),fs(i)
     7720 next i
 7730 return 
 
@@ -437,7 +435,8 @@
     1 'Cuando se lea otro nivel se inicializarán las pantallas y sonorá una musiquilla'
     11300 if ml=0 then bload"level0.bin",r:gosub 12000
     11310 if ml=1 then bload"level1.bin",r:gosub 12300:ee=7:gosub 2300
-    11315 vdp(1)=vdp(1) xor 64
+    11315 'vdp(1)=vdp(1) xor 64
+    11316 a=usr3(0)
     11320 '_turbo on
     11330 md=&hb001
     11340 for i=0 to mm-1
@@ -449,7 +448,8 @@
         11380 next j  
     11410 next i
     11420 '_turbo off
-    11430 vdp(1)=vdp(1) or 64
+    11430 'vdp(1)=vdp(1) or 64
+    11440 a=usr4(0)
 11490 return
 
 
@@ -463,8 +463,6 @@
 1 'Init'
     12000 pc=3
 12090 return
-
-
 
 1 'Rutina pintar escenario'
     1' Vamos a pintar el suelo
