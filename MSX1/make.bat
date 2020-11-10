@@ -37,8 +37,11 @@ rem start /wait tools/tokenizer/msxbatoken.py obj/game.asc obj/game.bas
 
 rem añadimos todos los .bas de la carpeta obj al disco
 rem por favor mirar for /?
-for /R obj/ %%a in (*.bas) do (
-    start /wait tools/Disk-Manager/DISKMGR.exe -A -F -C %TARGET_DSK% "%%a")   
+rem for /R obj/ %%a in (*.bas) do (
+    rem start /wait tools/Disk-Manager/DISKMGR.exe -A -F -C %TARGET_DSK% "%%a")  
+start /wait tools/Disk-Manager/DISKMGR.exe -A -F -C %TARGET_DSK% obj/autoexec.bas  
+start /wait tools/Disk-Manager/DISKMGR.exe -A -F -C %TARGET_DSK% obj/loader.bas  
+start /wait tools/Disk-Manager/DISKMGR.exe -A -F -C %TARGET_DSK% obj/game.bas 
 
 rem añadimos todos los arhivos binarios de la carpeta bin al disco
 rem recuerda que un sc2, sc5, sc8 es también un archivo binario, renombralo
