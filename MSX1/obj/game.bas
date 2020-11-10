@@ -35,13 +35,22 @@
     2400 if re=10 then sound 6,5:sound 8,16:sound 12,6:sound 13,9
     2410 'for i=0 to 100: next i: a=usr2(0)
 2420 return
-    2500 j=stick(0)
-    2520 if j=0 then ps=1
-    2530 if j=3 then px=px+pv:ps=4:if co mod 2=0 then ps=ps+1:'re=9:gosub 2300
-    2540 if j=7 then px=px-pv:ps=6:if co mod 2=0 then ps=ps+1:'re=9:gosub 2300
-    2550 if j=1 then py=py-pv:ps=2:if co mod 2=0 then ps=ps+1:'re=9:gosub 2300
-    2560 if j=5 then py=py+pv:ps=2:if co mod 2=0 then ps=ps+1:'re=9:gosub 2300
-2590 return
+    2500 'px=x:py=y
+    2510 on stick(0) gosub 2580,2500,2550,2500,2590,2500,2570
+    2520 if stick(0)=0 then ps=1
+2530 return
+    2550 px=px+pv:ps=3
+    2560 if co mod 2=0 then ps=ps+1
+2565 return
+    2570 px=px-pv:ps=5
+    2572 if co mod 2=0 then ps=ps+1
+2573 return
+    2580 py=py-pv:ps=2
+    2582 if co mod 2=0 then ps=ps+1
+2585 return
+    2590 py=py+pv:ps=2:
+    2592 if co mod 2=0 then ps=ps+1
+2595 return
     2600 if px>256-16 then px=256-16
     2610 if px<=0 then px=0
     2620 if py<140 then py=140
@@ -58,21 +67,22 @@
     2820 PRESET(10,15):PRINT#1,"Faltan: "
     2830 'PRESET(10,25):PRINT#1,"Vidas: "
     2840 'PRESET(10,35):PRINT#1,"Modelo: "
-    2850 PRESET(10,45):PRINT#1,"num: "
+    2850 'PRESET(10,45):PRINT#1,"num: "
 2860 return
     2900 line (80,0)-(256,60),7,bf
     2960 PRESET(80,5):PRINT#1,ml
     2970 PRESET(80,15):PRINT#1,pc
     2980 'PRESET(80,25):PRINT#1,pw","ph","fw(0)","fh(0)
     2990 'PRESET(80,35):PRINT#1,"px:"px"py:"py
-    3000 PRESET(80,45):PRINT#1,ft
+    3000 'PRESET(80,45):PRINT#1,ft
 3020 return
     5000 px=0:py=0:pw=16:ph=16:pv=8
     5010 pp=0:ps=1
     5030 pc=5:pe=100
 5040 return
-    5100 put sprite pp,(px,py),1,ps
-5110 return
+    5100  put sprite pp,(px,py),1,ps
+    5110  put sprite pp+1,(px,py),38,0
+5190 return
     
     6000 ex=16*8:ey=5*17
     6010 'epx=0:epy=0
@@ -84,15 +94,17 @@
     6060 e(0)=8*2:c(0)=8*10:  e(1)=8*7:c(1)=8*10:  e(2)=8*10:c(2)=8*10: e(3)=8*12:c(3)=8*10: e(4)=8*20:c(4)=8*10
     6070 e(5)=8*2:c(5)=8*12:  e(6)=8*7:c(6)=8*12:  e(7)=8*10:c(7)=8*12: e(8)=8*12:c(8)=8*12: e(9)=8*20:c(9)=8*12
     6080 e(10)=8*17:c(10)=8*14:  e(11)=8*20:c(11)=8*14:  e(12)=8*25:c(12)=8*14
+    6010 a=rnd(-time)
 6090 return
     6200 co=co+1
-    6210 es=9
+    6210 ep=3:es=9
     6220 'epx=ex:epy=ey
     6250 if co mod ev=0 and er=0 then co=0:ex=rnd(1)*(160-50)+50:es=es+1:re=5:gosub 2300:gosub 7500:sprite on
     6260 if co mod ev=0 and er=1 then co=0:ex=e(rnd(1)*13):ey=c(rnd(1)*13):es=es+1:re=5:gosub 2300:gosub 7500:'sprite on
 6290 return
-    6300 put sprite 1,(ex,ey),1,es
-6310 return
+    6300 put sprite ep,(ex,ey),1,es
+    6320 put sprite ep+1,(ex,ey),11,8
+6390 return
     7000 ft=0:fm=5:fip=10:fp=fip:fs=11:fd=0:fv=0
     7010 dim fx(fm),fy(fm),fw(fm),fh(fm),fm(fm),fp(fm),fs(fm),fc(fm),fa(fm)
 7020 return
@@ -108,12 +120,12 @@
     7550  if fm(ft)=3 then fc(ft)=13:preset (120,20): print #1,"Atari"
     7560 fa(ft)=1
     7570 ft=ft+1
-    7580 gosub 2900
+    7580 'gosub 2900
 7590 return
     7600 fx(d)=fx(ft-1):fy(d)=fy(ft-1):fp(d)=fp(ft-1):fs(d)=fs(ft-1):fc(d)=fc(ft-1)
     7610 ft=ft-1
     7620 re=9:gosub 2300
-    7630 gosub 2900
+    7630 'gosub 2900
 7690 return
     7700 if ft=0 then return
     7710 for i=0 to ft-1

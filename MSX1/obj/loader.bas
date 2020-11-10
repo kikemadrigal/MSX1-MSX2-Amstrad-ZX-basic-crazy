@@ -21,8 +21,9 @@
 
 
 1 ' Patrones:'
-1 'Plano 0. Player--sprites 0 oara el color y del 1 al 7'
-1 'Plano 1. Mujer---sprite 8 (para el color),9 y 10 '
+1 'Plano 0. Player--sprites del 1 al 7'
+1 'Plano 1 player 2 sprite, sprite num.0'
+1 'Plano 2. Mujer---sprite 8 (para el color),9 y 10 '
 1 'Plano del 10 hasta el 22 para los paquetes. sprites 11 y 12 '
 1 'Rutina cargar sprites con datas basic'
     10000 RESTORE

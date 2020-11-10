@@ -65,7 +65,7 @@
     2000 gosub 2500
     1 'Chequeamos las colisiones'
     2010 gosub 2600
-    1 'actualizamos el player'
+    1 'render player, el update lo hacemos en el sistema de input'
     2020 gosub 5100
     1 'Actualizamos enemigo'
     2030 gosub 6200
@@ -141,31 +141,39 @@
 
 
 
-1 ' 1 Sistema de Input
-    1'1 Arriba, 2 arriba derecha, 3 derecha, 4 abajo derecha, 5 abajo, 6 abajo izquierda, 7 izquierda, 8 izquierda arriba
-    2500 j=stick(0)
-    2520 if j=0 then ps=1
-    2530 if j=3 then px=px+pv:ps=4:if co mod 2=0 then ps=ps+1:'re=9:gosub 2300
-    2540 if j=7 then px=px-pv:ps=6:if co mod 2=0 then ps=ps+1:'re=9:gosub 2300
-    2550 if j=1 then py=py-pv:ps=2:if co mod 2=0 then ps=ps+1:'re=9:gosub 2300
-    2560 if j=5 then py=py+pv:ps=2:if co mod 2=0 then ps=ps+1:'re=9:gosub 2300
-2590 return
+1 '1 ' 1 Sistema de Input
+1 '    1'1 Arriba, 2 arriba derecha, 3 derecha, 4 abajo derecha, 5 abajo, 6 abajo izquierda, 7 izquierda, 8 izquierda arriba
+1 '    2500 j=stick(0)
+1 '    2520 if j=0 then ps=1
+1 '    2530 if j=3 then px=px+pv:ps=4:if co mod 2=0 then ps=ps+1:'re=9:gosub 2300
+1 '    2540 if j=7 then px=px-pv:ps=6:if co mod 2=0 then ps=ps+1:'re=9:gosub 2300
+1 '    2550 if j=1 then py=py-pv:ps=2:if co mod 2=0 then ps=ps+1:'re=9:gosub 2300
+1 '    2560 if j=5 then py=py+pv:ps=2:if co mod 2=0 then ps=ps+1:'re=9:gosub 2300
+1 '2590 return
 
-1 '1 '2 Sistema de input'
-1 '    1 'Nos guardamos las posiciones del player antes de cambiarlas'
-1 '    2500 'px=x:py=y
-1 '    2510 on stick(0) gosub 2580,2500,2550,2500,2590,2500,2570
-1 '    2520 if stick(0)=0 then ps=1
-1 '2530 return
-1 '1 're=8 es el efecto de sonido 8 de la rutina de reprodución de sonidos 2300
-1 '1 '3 derecha'
-1 '2550 x=x+pv:ps=3:if co mod 2=0 then ps=ps+1:re=9:gosub 2300:return
-1 '1 '7 izquierda'
-1 '2570 x=x-pv:ps=5:if co mod 2=0 then ps=ps+1:re=9:gosub 2300:return
-1 '1 '1 arriba'
-1 '2580 y=y-pv:ps=2:re=9:gosub 2300:return
-1 '1 '5 abajo' 
-1 '2590 y=y+pv:ps=2:re=9:gosub 2300:return
+1 '2 Sistema de input'
+    1 'Nos guardamos las posiciones del player antes de cambiarlas'
+    2500 'px=x:py=y
+    2510 on stick(0) gosub 2580,2500,2550,2500,2590,2500,2570
+    2520 if stick(0)=0 then ps=1
+2530 return
+1 're=8 es el efecto de sonido 8 de la rutina de reprodución de sonidos 2300
+1 '3 derecha'
+    2550 px=px+pv:ps=3
+    2560 if co mod 2=0 then ps=ps+1
+2565 return
+1 '7 izquierda'
+    2570 px=px-pv:ps=5
+    2572 if co mod 2=0 then ps=ps+1
+2573 return
+1 '1 arriba'
+    2580 py=py-pv:ps=2
+    2582 if co mod 2=0 then ps=ps+1
+2585 return
+1 '5 abajo' 
+    2590 py=py+pv:ps=2:
+    2592 if co mod 2=0 then ps=ps+1
+2595 return
 
 
 
@@ -182,8 +190,10 @@
     2610 if px<=0 then px=0
     2620 if py<140 then py=140
     2630 if py>192-16 then py=192-16
+
     1 'Colision del player con los paquetes'
     1 '2640 for i=0 to ft-1
+    1 '    2650 if px < fx(i) + fw(i) and  px + pw > fx(i) and py < fy(i) + fh(i) and ph + py > fy(i) then beep
     1 '    2650 if px < fx(i) + fw(i) and  px + pw > fx(i) and py < fy(i) + fh(i) and ph + py > fy(i) then beep
     1 '2660 next i
     
@@ -214,7 +224,7 @@
     2820 PRESET(10,15):PRINT#1,"Faltan: "
     2830 'PRESET(10,25):PRINT#1,"Vidas: "
     2840 'PRESET(10,35):PRINT#1,"Modelo: "
-    2850 PRESET(10,45):PRINT#1,"num: "
+    2850 'PRESET(10,45):PRINT#1,"num: "
 2860 return
 
 
@@ -226,7 +236,7 @@
     2970 PRESET(80,15):PRINT#1,pc
     2980 'PRESET(80,25):PRINT#1,pw","ph","fw(0)","fh(0)
     2990 'PRESET(80,35):PRINT#1,"px:"px"py:"py
-    3000 PRESET(80,45):PRINT#1,ft
+    3000 'PRESET(80,45):PRINT#1,ft
 3020 return
 
 
@@ -270,9 +280,15 @@
     5030 pc=5:pe=100
 5040 return
 
-1 'update player'
-    5100 put sprite pp,(px,py),1,ps
-5110 return
+1 'Update player'
+1 'pasado al sistema de input'
+
+1 'render player'
+    1 'El sprite de nuestro personaje es el 1, plano 0'
+    5100  put sprite pp,(px,py),1,ps
+    1 'El sprute 0 es el swter de color amarillo, plano 1'
+    5110  put sprite pp+1,(px,py),38,0
+5190 return
 
 
 
@@ -306,15 +322,15 @@
     6070 e(5)=8*2:c(5)=8*12:  e(6)=8*7:c(6)=8*12:  e(7)=8*10:c(7)=8*12: e(8)=8*12:c(8)=8*12: e(9)=8*20:c(9)=8*12
     1 ' 3 Fila'
     6080 e(10)=8*17:c(10)=8*14:  e(11)=8*20:c(11)=8*14:  e(12)=8*25:c(12)=8*14
-    1 'El plano será 1 porque es el 2 cnjunto de 8 bytes que necesitamos tener x e y
-
+    1 'Iniciamos la secuencia de nuemeros aleatorios al azar
+    6010 a=rnd(-time)
 6090 return
 
 1 'update enemy'
     1 ' aumentamos el contador para que al mod de 40 tire un paquete'
     6200 co=co+1
     1 'Le ponemos el sprite 1 que lo podemos cambiar cuando sea mod de 40'
-    6210 es=9
+    6210 ep=3:es=9
     6220 'epx=ex:epy=ey
     1 ' cada vez que sea 20
     1 '1.Ponemos el contador a 0 y generamos un número aleatorio en contador (co),si está en er=enegigo ruta 1 le asignamos la posición aleatoria del array,
@@ -329,8 +345,11 @@
 6290 return
 
 1 'Render'
-    6300 put sprite 1,(ex,ey),1,es
-6310 return
+    1 'El sprite de nuestra mujer es el 9, el plano el 3'
+    6300 put sprite ep,(ex,ey),1,es
+    1 'Le ponemos un 2 plano al personaje para que le pinte los brazos de color naranja, sprite 8'
+    6320 put sprite ep+1,(ex,ey),11,8
+6390 return
 
 
 1 '---------------------------------------------------------'
@@ -372,7 +391,7 @@
     7550  if fm(ft)=3 then fc(ft)=13:preset (120,20): print #1,"Atari"
     7560 fa(ft)=1
     7570 ft=ft+1
-    7580 gosub 2900
+    7580 'gosub 2900
 7590 return
 
 1 'Delete paquete'
@@ -382,7 +401,7 @@
     1 'Descontamos 1 en el contador paa que no  dibuje 1'
     7610 ft=ft-1
     7620 re=9:gosub 2300
-    7630 gosub 2900
+    7630 'gosub 2900
 7690 return
 
 
