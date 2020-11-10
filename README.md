@@ -23,3 +23,8 @@ https://github.com/kikemadrigal/crazy/blob/main/amstrad/disco.dsk
 <img src=images/3.PNG width=300>
 
 
+#Github
+
+https://github.com/kikemadrigal/crazy
+
+
