@@ -25,7 +25,7 @@
 
 80 defint a-z
 1 'Inicializamos variables de mapa'
-90 gosub 11200
+90 gosub 11000
 1 ' Variables el juego'
 120 co=0:re=0
 1 'Inicializamos el personaje'
@@ -35,19 +35,22 @@
 1 'Inicialización paquete'
 150 gosub 7000 
 1 'Mostramos la pantalla de bienvenida'
-160 gosub 13200
+170 gosub 11500
 1 'Ponemos un 0 el el bit 7 del rgistro 1 del vdp para poner la pantalla del color del borde'
 1 'para que no se vea la carga del archivo de tileset'
 1 '400 vdp(1)=vdp(1) xor 64
 400 a=usr3(0)
-1 'Cargamos los tiles en RAM'
-420 bload"tileset.bin",s
-1 'Cargamos el mapa e inicializamos las pantallas con los valores de numero de enemigos, aparatos a capturar,etc'
+1 'Cargamos los tiles para el mundo 0 en RAM'
+420 bload"tilesw0.bin",s
+1 'cargamos el buffer'
+425 gosub 11100
+1 'Cargamos el mapa con los niveles del word 0 e inicializamos la pantalla 0 
+1 'con los valores de numero de enemigos, aparatos a capturar,etc'
 430 gosub 11300
 1 '450 vdp(1)=vdp(1) or 64
 450 a=usr4(0)
 1 'Activamos las interrupciones de los sprites para detectar las colisiones'
-490 on sprite gosub 2700:sprite on
+490 'on sprite gosub 2700:sprite on
 1 'Mostramos la información del HUD'
 500 gosub 2800:gosub 2900
 1 'cargamos la música en la RAM y la llamamos desde basic'
@@ -79,7 +82,7 @@
     2070 if pc=0 then ml=ml+1: gosub 11300
     1 'bucle'
     2080 'if co mod 10=0 then gosub 2900
-2090 go to 2000
+2090 goto 2000
 1 ' ----------------------'
 1 '    FINAL MAIN LOOP
 1 ' ----------------------'
@@ -116,7 +119,7 @@
     2380 if re=8 then PLAY"S1M2000T150O7C32"
    
     1 'Pasos'
-    2390 if re=9 then PLAY"o2 l64 t255 v4 m6500 c"
+    2390 if re=9 then PLAY"o2 l64 t255 v10 m6500 c"
     1 'Sound puerto, valor, para ver las notas ir a https://www.msx.org/wiki/SOUND, recuerda que el d5dh=3421 es el 34 para el tono canal a puerto 1 y en puerto 0 21'
     1 '0=Tono canal a bit menos significativo,2=tono canal b menos significativo, 4=tono canal c menos significativo de 0-255
     1 '1=Tono canal a bit mas significativo, 3=tono canal b bit mas significativo, 5=tono canal c bit mas significativo de 0 a 15 
@@ -191,11 +194,12 @@
     2620 if py<140 then py=140
     2630 if py>192-16 then py=192-16
 
-    1 'Colision del player con los paquetes'
-    1 '2640 for i=0 to ft-1
-    1 '    2650 if px < fx(i) + fw(i) and  px + pw > fx(i) and py < fy(i) + fh(i) and ph + py > fy(i) then beep
-    1 '    2650 if px < fx(i) + fw(i) and  px + pw > fx(i) and py < fy(i) + fh(i) and ph + py > fy(i) then beep
-    1 '2660 next i
+    1'Colision del player con los paquetes'
+    2640 for i=0 to ft-1
+        2650 if px < fx(i) + fw(i) and  px + pw > fx(i) and py < fy(i) + fh(i) and ph + py > fy(i) then gosub 2700
+        1 'If coordenada y+8 del paquete >y del prota then if x del paquete >x del prota and x+8 del paquete <x+8 del prota'
+        1'2650 if fy(0)+16 > py and py < fy(0)+16 then if fx(0)<px+16 and fx(0)+16 > px then beep
+    2660 next i
     
 2690 return
 1 'Colision del player con el paquete 2'
@@ -236,7 +240,7 @@
     2970 PRESET(80,15):PRINT#1,pc
     2980 'PRESET(80,25):PRINT#1,pw","ph","fw(0)","fh(0)
     2990 'PRESET(80,35):PRINT#1,"px:"px"py:"py
-    3000 'PRESET(80,45):PRINT#1,ft
+    3000 'PRESET(80,45):PRINT#1,mf(0,0)" "mf(1,0)" "mf(2,0)" "mf(3,0)
 3020 return
 
 
@@ -272,11 +276,11 @@
 1 ' ----------------------'
 1 'Init player'
     1 'Componente position'
-    1 'la posición se define en las pantallas'
+    1 'la posición se define en las pantallas, pw=ancho, ph=alto, pv=velocidad'
     5000 px=0:py=0:pw=16:ph=16:pv=8
-    1 'Componente render: Plano y sprite del 0(para el color) del 1 al 6'
+    1 'Componente render: Plano 1(para el color) y 0 para el personaje, sprite del 0(para el color) y del 1 al 7 para el personaje'
     5010 pp=0:ps=1
-    1 'Componente RPG=player capturas y vida'
+    1 'Componente RPG=player capturas y energía o vida'
     5030 pc=5:pe=100
 5040 return
 
@@ -285,9 +289,9 @@
 
 1 'render player'
     1 'El sprite de nuestro personaje es el 1, plano 0'
-    5100  put sprite pp,(px,py),1,ps
+    5100 put sprite pp,(px,py),1,ps
     1 'El sprute 0 es el swter de color amarillo, plano 1'
-    5110  put sprite pp+1,(px,py),38,0
+    5110 put sprite pp+1,(px,py),11,0
 5190 return
 
 
@@ -338,8 +342,8 @@
     1 '3 Emitimos el efecto de sonido re=5(linea 2300)'
     1 '4.Como hay que desactivar las colisiones de los sprites cada vez que haya una, las volvemos a activar'
     1 '5.Creamos un paquete nuevo (línea 7500)'
-    6250 if co mod ev=0 and er=0 then co=0:ex=rnd(1)*(160-50)+50:es=es+1:re=5:gosub 2300:gosub 7500:sprite on
-    6260 if co mod ev=0 and er=1 then co=0:ex=e(rnd(1)*13):ey=c(rnd(1)*13):es=es+1:re=5:gosub 2300:gosub 7500:'sprite on
+    6250 if co mod ev=0 and er=0 and ft<>fm-1 then co=0:ex=rnd(1)*(160-50)+50:es=es+1:re=5:gosub 2300:gosub 7500:sprite on
+    6260 if co mod ev=0 and er=1 and ft<>fm-1 then co=0:ex=e(rnd(1)*13):ey=c(rnd(1)*13):es=es+1:re=5:gosub 2300:gosub 7500:'sprite on
     1 'Solo para debugger'
     1 '6270 if co mod 40=0 then gosub 2900
 6290 return
@@ -364,13 +368,13 @@
     1 'fip= inicial plano'
     1 'fs esprite inicial'
     1 'fd paquete a borrar'
-    7000 ft=0:fm=5:fip=10:fp=fip:fs=11:fd=0:fv=0
+    7000 ft=0:fm=4:fip=10:fp=fip:fs=11:fd=0:fv=0
     7010 dim fx(fm),fy(fm),fw(fm),fh(fm),fm(fm),fp(fm),fs(fm),fc(fm),fa(fm)
 7020 return
 
 1 'Crear paquete'
     1 ' Para crear objetos siempre trabajaremos con un menos, en contador de número siempre habrá uno más'
-    7500 'nada'
+    7500 if ft=fm then return
     1 'La posición será la del el player + su altura'
     7502 fx(ft)=ex:fy(ft)=ey+16:fw(ft)=16:fh(ft)=16
     1 'modelo ataris, msx, etc'
@@ -391,17 +395,17 @@
     7550  if fm(ft)=3 then fc(ft)=13:preset (120,20): print #1,"Atari"
     7560 fa(ft)=1
     7570 ft=ft+1
-    7580 'gosub 2900
+    7580 gosub 2900
 7590 return
 
 1 'Delete paquete'
     1 '7600 fx(i)=fx(ft-1):fy(i)=fy(ft-1):fp(i)=fp(ft-1):fs(i)=fs(ft-1):fc(i)=fc(ft-1):sprite off:ft=ft-1
     1 'Pasamos todos los datos del utimo al eliminado'
-    7600 fx(d)=fx(ft-1):fy(d)=fy(ft-1):fp(d)=fp(ft-1):fs(d)=fs(ft-1):fc(d)=fc(ft-1)
+    7600 fx(d)=-16:fy(d)=0:fp(d)=fp(ft-1):fs(d)=fs(ft-1):fc(d)=fc(ft-1)
     1 'Descontamos 1 en el contador paa que no  dibuje 1'
     7610 ft=ft-1
     7620 re=9:gosub 2300
-    7630 'gosub 2900
+    7630 gosub 2900
 7690 return
 
 
@@ -410,13 +414,15 @@
     7700 if ft=0 then return
     7710 for i=0 to ft-1
         1 'Aumentamos la y en 1 para que se mueva'  
-        7720 fy(i)=fy(i)+fv
+
         1 'Si el paquete llega abajo le ponemos que no está axyivo'
         1 'Si el paquete llega a 158 le cambiamos el sprite al siguiente del inicial'
-        7730 if fy(i)>160-4 then fs(i)=fs(i)+1
+        7730 'if fy(i)>160-4 then fs(i)=fs(i)+1
         1 'y si llega al final los borramos'
         1 'Si llega al suelo, lo eliminamos'
-        7740 if fy(i)>160 then fd=i:sprite off:gosub 7600
+        1 '7740 if fy(i)>150 then fd=i:gosub 7600
+        7740 if fy(i)>150 then fd=i:gosub 7600
+        7745 fy(i)=fy(i)+fv
     7750 next i
 7790 return
 
@@ -468,37 +474,59 @@
 1 '------------------------MAPA ----------------------'
 1 '---------------------------------------------------------'
 1 ' inicializar_mapa
+    1 'mw=mapa mundo'
     1 'ml=mapa level, el mapa empezará en el level 0'
     1 'ms=mapa seleccioando, lo hiremos cambiando    
-    1 'mm= maximo de mapas
+    1 'mm= maximo de mapas, cada mundo tiene 9 mapas
     1 'mc= mapa cambia, lo utilizaremos para cambiar los copys y así cambiar la pantalla
     1 'md=Mapa dirección de la yabla de nombres'
-    11200 ml=0:ms=0:mm=1:mc=0:md=0
-11220 return
+    11000 mw=0:ml=0:ms=0:mm=9:mc=0:md=0
+    11010 dim mf(512,9)
+11020 return
 
-1 'Cargar mapa de disco y meterlo en la VRAM
-    1 '1 cargamos el mapa
-    1 'Cada mapa ocupa 862 bytes'
-    1 'md=mapa dirección, la dirección c001 se la he puesto yo en el archivo binario cuando lo creé'
-    1 'El archivo tan solo contiene los datos de la definición de los mapas'
-    1 'Cuando se lea otro nivel se inicializarán las pantallas y sonorá una musiquilla'
-    11300 if ml=0 then bload"level0.bin",r:gosub 12000
-    11310 if ml=1 then bload"level1.bin",r:gosub 12300:re=7:gosub 2300
-    11311 if ml=2 then bload"level0.bin",r:gosub 12400:re=7:gosub 2300
-    11315 'vdp(1)=vdp(1) xor 64
-    11316 a=usr3(0)
-    11320 '_turbo on
-    11330 md=&hb001
-    11340 for i=0 to mm-1
-        1 'Copia desde base(10) 6144 (&h1800) hasta la &h1aff,6144+768=6912
-        11350 for j=6144+256 to 6912
-                1 'Como los tiles los habíamos cargado previamente en RAM ahora solo los pasamos a VRAM'
-                11360 vpoke j,peek(md)
-                11370 md=md+1
-        11380 next j  
-    11410 next i
+1 'Cargar mundo con los mapas de los niveles en el buffer o array'
+    11100 bload"world0.bin",r
+    1 ' sabemos que niestro mapa empieza en dirección b001'
+    1 'Como no vamos a usar los 3 trozos de pantalla (o bancos) en lugar de 768 (mirar la distribución de la tabla de nombres de la RAM) utilizaremos 512'
+    1 '6912-6400=512(&h200)'
+    1 '45057=&hb001 (del b001 al b200), 45057+512=&hb034 (del b201 al 400), 45057+(512*2)=&hb401 (del 401 al 600)
+    1 'Nuestro mapa ha sido definido con tiles de 8x8 pixeles'
+    1 'La definición de nuestro mapa son 512 bytes'
+    1 'ml=0 = md=&hb001
+    1 'ml=1 = md=&hb201
+    1 'ml=2 = md=&hb401
+    1 'ml=3 = md=&hb601
+    1 'ml=4 = md=&hb801
+    1 'ml=5 = md=&hba01
+    1 'ml=6 = md=&hbc01
+    1 'ml=7 = md=&hbe01
+
+    11110 md=&hc001
+    11120 for i=0 to mm-1
+        1 'Esto se podría poner desde 0 hasta 512'
+        11130 for j=0 to 511
+            11140 tn=peek(md):md=md+1
+            11150 mf(j,i)=tn
+        11170 next j
+    11180 next i
+11190 return
+
+
+1 'Cargar mapa del array y meterlo en la VRAM
+    11300 a=usr3(0)
+    11320 '_turbo on(mf(),ml)
+    11330 if ml=0 then gosub 12000
+    11331 if ml=1 then gosub 12100:re=7:gosub 2300
+    11332 if ml=2 then gosub 12200:re=7:gosub 2300
+    11333 if ml=3 then gosub 12300:re=7:gosub 2300
+    11334 if ml=4 then gosub 12400:re=7:gosub 2300
+    11335 if ml=5 then gosub 12500:re=7:gosub 2300
+    11336 if ml=6 then gosub 12600:re=7:gosub 2300
+    11337 if ml=7 then gosub 12700:re=7:gosub 2300
+    11350 for i=0 to 512
+        11360 vpoke 6144+256+i,mf(i,ml)
+    11380 next i 
     11420 '_turbo off
-    11430 'vdp(1)=vdp(1) or 64
     11440 a=usr4(0)
 11490 return
 
@@ -507,83 +535,165 @@
 
 
 
-1 '---------------------------------------------------------'
-1 '------------------------PANTALLA 1 ----------------------'
-1 '---------------------------------------------------------'
-1 'Init'
-    1 'Objetivo coger 3 paquetes'
-    1 'pc=player capturas que tiene que hacer'
-    12000 pc=30
-    1 'posición del player abajo en el centro'
-    12010 px=100:py=150
-    1 'en=numero de enemigos'
-    12020 en=1
-    1 ' Tiempo que tarda en aparecer el malo'
-    12030 ev=20
-    1 'Velocidad en el que caen los objetos'
-    12040 fv=8
 
-12090 return
 
-1 'Rutina pintar escenario'
-    1' Vamos a pintar el suelo
-    12200 LINE(0,160)-(256,170),3,bf
-    1 'Vamos a pintar la casa'
-    1 ' b=desplazamos el lapiz de forma absoluta y sin dibujar la trayectoria 40 pixeles eje x y 160 eje y  '
-    1 'c= le ponemos el valor negro=1'
-    1 'up=le decimos que dibuje 100 pixeles hacia arriba'
-    12210 draw ("bm40,160c1u100")
-    12220 draw ("r180d100")
-    1 ' dibujamos el altillo'
-    12230 draw("bm50,60u20r160d20")
-12240 return
-1 '---------------------------------------------------------'
-1 '------------------------PANTALLA 2 ----------------------'
-1 '---------------------------------------------------------'
-1 'init'
-    1 'objetivo coger 3 paquetes'
-    1 'Ponemos el numero de sprites de paquetes a 0'
-    12300 'ft=0
-    1 'Ponemos que el enemigo se mueva según las coordenadas establecidas en un array'
-    12310 ex=8*7:ey=8*10:er=1
-    1 'Aquí el player deberá d coger 6 aparatos'
-    12320 pc=6
-    1 'Actualizamos el HUD'
-    12330 gosub 2900
-12390 return
 
-1 '---------------------------------------------------------'
-1 '------------------------PANTALLA 3 ----------------------'
-1 '---------------------------------------------------------'
-1 'Objetivo coger 3 paquete y que no te pillen'
-    12400 pc= 3:ev=5
-12410 return
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 1'------------------------------------'
 1'  Pantalla de Bienvenida y records 
 1'------------------------------------'
-    13200 cls:preset (10,30):  print #1,"@@@@   @@@@    @    @@@@   @  @ "
-    13210 preset (10,40):  print #1,"@      @@     @ @    @       @  "
-    13220 preset (10,50):  print #1,"@@@@   @  @  @   @  @@@@     @  "
-    13230 preset (10,120): print #1,"Tu mujer se ha vuelto loca porque no os vais a pasear y ha empezado a tirar tus consolas y juegos por la ventana"
+    11500 cls:preset (10,30):  print #1,"@@@@   @@@@    @    @@@@   @  @ "
+    11510 preset (10,40):  print #1,"@      @@     @ @    @       @  "
+    11520 preset (10,50):  print #1,"@@@@   @  @  @   @  @@@@     @  "
+    11530 preset (10,120): print #1,"Tu mujer se ha vuelto loca porque no os vais a pasear y ha empezado a tirar tus consolas y juegos por la ventana"
     1 ' Con inverse ponemos el fondo de los carcacteres en el frente y el frente en el fondo'
-    13240 preset (10,160): print #1, "Cursores para mover, pulsa una tecla para continuar"
-    13250 preset (10,180): print #1, "libre: "fre(0)
+    11540 preset (10,160): print #1, "Cursores para mover, pulsa una tecla para continuar"
+    11560 preset (10,180): print #1, "libre: "fre(0)
     1 'Si no se pulsa una tecla se queda en blucle infinito reproduciebdo una música, si se pulsa se para la música'
-    13260 re=1:gosub 2300
-    13270 if inkey$="" then goto 13260 else a=usr2(0)
-13290 return
+    11570 re=1:gosub 2300
+    11580 if inkey$="" then goto 11570 else a=usr2(0)
+11590 return
 
 
 
 1'------------------------------------'
 1'     Pantalla Ganadora'
 1'------------------------------------'
-
+    11600 'nada
+11610 return
 
 1'------------------------------------'
 1'           Game over 
 1'------------------------------------'
+    11700 'nada'
+11710 return
+1'------------------------------------'
+1'    Salón de la fama o records 
+1'------------------------------------'
+    11800 'nada'
+11810 return
+
+
+1 'Rutina pintar escenario'
+    1' Vamos a pintar el suelo
+    11900 LINE(0,160)-(256,170),3,bf
+    1 'Vamos a pintar la casa'
+    1 ' b=desplazamos el lapiz de forma absoluta y sin dibujar la trayectoria 40 pixeles eje x y 160 eje y  '
+    1 'c= le ponemos el valor negro=1'
+    1 'up=le decimos que dibuje 100 pixeles hacia arriba'
+    11910 draw ("bm40,160c1u100")
+    11920 draw ("r180d100")
+    1 ' dibujamos el altillo'
+    11930 draw("bm50,60u20r160d20")
+11940 return
+
+
+
+1 '-----------------------------------------------------------------------------------------'
+1 '--------------------------------------MUNCO 1 -------------------------------------------'
+1 '-----------------------------------------------------------------------------------------'
+
+
+
+1 '---------------------------------------------------------'
+1 '------------------------PANTALLA 0 ----------------------'
+1 '---------------------------------------------------------'
+1 'Init'
+    1 'Objetivo coger 3 paquetes'
+    1 'pc=player capturas que tiene que hacer'
+    12000 pc=3
+    1 'posición del player abajo en el centro'
+    12010 px=100:py=150
+    1 'en=numero de enemigos'
+    12020 en=1
+    1 ' Tiempo que tarda en aparecer el malo'
+    12030 ev=5
+    1 'Velocidad en el que caen los objetos'
+    12040 fv=8
+
+12090 return
+
+1 '---------------------------------------------------------'
+1 '------------------------PANTALLA 1 ----------------------'
+1 '---------------------------------------------------------'
+1 'init'
+    1 'objetivo coger 3 paquetes'
+    1 'Ponemos el numero de sprites de paquetes a 0'
+    12100 'ft=0
+    1 'Ponemos que el enemigo se mueva según las coordenadas establecidas en un array'
+    12110 ex=8*7:ey=8*10:er=1
+    1 'Aquí el player deberá d coger 6 aparatos'
+    12120 pc=2
+    1 'Actualizamos el HUD'
+    12130 gosub 2900
+12190 return
+
+1 '---------------------------------------------------------'
+1 '------------------------PANTALLA 2 ----------------------'
+1 '---------------------------------------------------------'
+1 'Objetivo coger 3 paquete y que no te pillen'
+    12200 pc= 3:ev=5
+12210 return
+1 '---------------------------------------------------------'
+1 '------------------------PANTALLA 3 ----------------------'
+1 '---------------------------------------------------------'
+1 'Objetivo coger 3 paquete y que no te pillen'
+    12300 pc= 3:ev=7
+12310 return
+1 '---------------------------------------------------------'
+1 '------------------------PANTALLA 4 ----------------------'
+1 '---------------------------------------------------------'
+1 'Objetivo coger 3 paquete y que no te pillen'
+    12400 pc= 3:ev=5
+12410 return
+1 '---------------------------------------------------------'
+1 '------------------------PANTALLA 5 ----------------------'
+1 '---------------------------------------------------------'
+1 'Objetivo coger 3 paquete y que no te pillen'
+    12500 pc= 1:ev=10
+12510 return
+1 '---------------------------------------------------------'
+1 '------------------------PANTALLA 6 ----------------------'
+1 '---------------------------------------------------------'
+1 'Objetivo coger 3 paquete y que no te pillen'
+    12600 pc= 1:ev=6
+12610 return
+1 '---------------------------------------------------------'
+1 '------------------------PANTALLA 7 ----------------------'
+1 '---------------------------------------------------------'
+1 'Objetivo coger 3 paquete y que no te pillen'
+    12700 pc= 1:ev=5
+12710 return
+1 '---------------------------------------------------------'
+1 '------------------------PANTALLA 8 ----------------------'
+1 '---------------------------------------------------------'
+1 'Objetivo coger 3 paquete y que no te pillen'
+    12800 pc= 1:ev=5
+12810 return
+
+
+1 '-----------------------------------------------------------------------------------------'
+1 '--------------------------------------MUNCO 2 -------------------------------------------'
+1 '-----------------------------------------------------------------------------------------'
+
 
 

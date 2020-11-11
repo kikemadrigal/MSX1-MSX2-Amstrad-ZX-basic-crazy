@@ -1,5 +1,4 @@
-
-5 'bload"xbasic.bin",r
+5 bload"xbasic.bin",r
 1 'Inicilizamos dispositivo: 003B, inicilizamos teclado: 003E'
 10 defusr=&h003B:a=usr(0):defusr1=&h003E:a=usr1(0):defusr2=&H90:a=usr2(0)
 15 defusr3=&H41:defusr4=&H44
@@ -80,10 +79,12 @@
     10530 DATA 00,00,00,00,00,00,00,00
     10540 DATA 00,F8,F8,F8,10,D0,D0,60
     10550 DATA 00,00,00,00,00,00,00,00
-    10560 DATA 00,00,00,00,00,00,00,00
-    10570 DATA 00,00,00,00,0F,0F,0F,00
-    10580 DATA 00,00,00,00,00,00,00,00
-    10590 DATA 00,00,00,00,F0,F0,F0,00
+
+    10560 DATA FF,FF,FF,FF,FF,FF,FF,FF
+    10570 DATA FF,FF,FF,FF,FF,FF,FF,FF
+    10580 DATA FF,FF,FF,FF,FF,FF,FF,FF
+    10590 DATA FF,FF,FF,FF,FF,FF,FF,FF
+
     10600 DATA 00,00,00,00,00,00,00,00
     10610 DATA 00,00,00,00,10,0A,0D,00
     10620 DATA 00,00,00,00,00,00,00,00
