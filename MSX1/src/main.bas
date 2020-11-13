@@ -245,8 +245,8 @@
     1 'El borrado de lo que había antes lo hacemos con un line'
     2900 line (80,0)-(256,60),7,bf
     1 'Coloreado'
-    2960 PRESET(80,5):PRINT#1,co
-    2970 PRESET(80,15):PRINT#1,es(1)
+    2960 PRESET(80,5):PRINT#1,ml
+    2970 PRESET(80,15):PRINT#1,pc
     2980 'PRESET(80,25):PRINT#1,pw","ph","fw(0)","fh(0)
     2990 'PRESET(80,35):PRINT#1,"px:"px"py:"py
     3000 'PRESET(80,45):PRINT#1,fa
@@ -456,7 +456,7 @@
         7740 if fy(ft)>160 then gosub 7600
 7790 return
 1 'render paquete'
-    7800 if fa<0 then return
+    7800 if fa<=0 then return
     7810 put sprite fp(ft),(fx(ft),fy(ft)),fc(ft),fs(ft)
 7890 return 
 
