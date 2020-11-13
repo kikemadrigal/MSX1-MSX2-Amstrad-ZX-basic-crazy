@@ -5,6 +5,7 @@
 140 gosub 6000
 150 gosub 7000 
 170 gosub 11500
+180 print #1,"Loading tilset word 0"
 400 a=usr3(0)
 420 bload"tilesw0.bin",s
 425 gosub 11100
@@ -18,9 +19,11 @@
     2010 gosub 2600
     2020 gosub 5100
     2030 gosub 6200
-    2040 GOSUB 6300
-    2050 gosub 7700
-    2060 gosub 7800
+    2040 GOSUB 6600
+    2041 for ft=0 to fa-1
+        2050 gosub 7700
+        2060 gosub 7800
+    2062 next ft
     2070 if pc=0 then ml=ml+1: gosub 11300
     2080 'if co mod 10=0 then gosub 2900
 2090 goto 2000
@@ -56,44 +59,48 @@
     2610 if px<=0 then px=0
     2620 if py<140 then py=140
     2630 if py>192-16 then py=192-16
-    2640 for i=0 to ft-1
-        2650 if px < fx(i) + fw(i) and  px + pw > fx(i) and py < fy(i) + fh(i) and ph + py > fy(i) then gosub 2700
+    2640 for i=0 to fa-1
+        2650 if px < fx(i) + fw and  px + pw > fx(i) and py < fy(i) + fh and ph + py > fy(i) then gosub 2700
     2660 next i
     
 2690 return
-    2700 re=6: gosub 2300: pc=pc-1:sprite off:'gosub 7600
+    2700 re=6: gosub 2300: pc=pc-1:gosub 7600
     2710 line (120,20)-(180,30),7,bf
-    2720 preset (120,20):  print #1,"Cogido!"
-2730 return
+    2720 preset (120,20):  print #1,"Capurado!!!"
+    2730 gosub 2900
+2740 return
     2800 '
     2805 line (0,0)-(80,60),7,bf
     2810 PRESET(10,5):PRINT#1,"level: "
-    2820 PRESET(10,15):PRINT#1,"Faltan: "
+    2820 PRESET(10,15):PRINT#1,"faltan: "
     2830 'PRESET(10,25):PRINT#1,"Vidas: "
     2840 'PRESET(10,35):PRINT#1,"Modelo: "
-    2850 'PRESET(10,45):PRINT#1,"num: "
+    2850 'PRESET(10,45):PRINT#1,"Activos: "
 2860 return
     2900 line (80,0)-(256,60),7,bf
-    2960 PRESET(80,5):PRINT#1,ml
-    2970 PRESET(80,15):PRINT#1,pc
+    2960 PRESET(80,5):PRINT#1,co
+    2970 PRESET(80,15):PRINT#1,es(1)
     2980 'PRESET(80,25):PRINT#1,pw","ph","fw(0)","fh(0)
     2990 'PRESET(80,35):PRINT#1,"px:"px"py:"py
-    3000 'PRESET(80,45):PRINT#1,mf(0,0)" "mf(1,0)" "mf(2,0)" "mf(3,0)
+    3000 'PRESET(80,45):PRINT#1,fa
 3020 return
     5000 px=0:py=0:pw=16:ph=16:pv=8
     5010 pp=0:ps=1
-    5030 pc=5:pe=100
+    5030 pc=0:pe=0
 5040 return
     5100 put sprite pp,(px,py),1,ps
-    5110 put sprite pp+1,(px,py),11,0
+    5110 'put sprite pp+1,(px,py),11,0
 5190 return
     
-    6000 ex=16*8:ey=5*17
+    6000 ex(0)=16*8:ey(0)=5*17
+    6005 ex(1)=255:ey(1)=160
+    6006 ex(2)=0:ey(2)=140
     6010 'epx=0:epy=0
-    6015 ev=40
-    6020 er=0:nu=0
-    6030 ep=1:es=9
-    6040 et=0
+    6015 ev(0)=40:ev(1)=8:ev(2)=8
+    6020 er(0)=0:'nu(0)=0
+    6030 ep(0)=1
+    6035 es(0)=9:es(1)=13
+    6040 en=0:et(0)=0
     6050 dim e(13),c(13)
     6060 e(0)=8*2:c(0)=8*10:  e(1)=8*7:c(1)=8*10:  e(2)=8*10:c(2)=8*10: e(3)=8*12:c(3)=8*10: e(4)=8*20:c(4)=8*10
     6070 e(5)=8*2:c(5)=8*12:  e(6)=8*7:c(6)=8*12:  e(7)=8*10:c(7)=8*12: e(8)=8*12:c(8)=8*12: e(9)=8*20:c(9)=8*12
@@ -101,49 +108,53 @@
     6010 a=rnd(-time)
 6090 return
     6200 co=co+1
-    6210 ep=3:es=9
-    6220 'epx=ex:epy=ey
-    6250 if co mod ev=0 and er=0 and ft<>fm-1 then co=0:ex=rnd(1)*(160-50)+50:es=es+1:re=5:gosub 2300:gosub 7500:sprite on
-    6260 if co mod ev=0 and er=1 and ft<>fm-1 then co=0:ex=e(rnd(1)*13):ey=c(rnd(1)*13):es=es+1:re=5:gosub 2300:gosub 7500:'sprite on
+    6210 ep(0)=3:es(0)=9
+    6250 if co mod ev(0)=0 and er(0)=0 and fa<>fm-1 then co=0:ex(0)=rnd(1)*(160-50)+50:es(0)=es(0)+1:re=5:gosub 2300:gosub 7500
+    6260 if co mod ev(0)=0 and er(0)=1 and fa<>fm-1 then co=0:ex(0)=e(rnd(1)*13):ey(0)=c(rnd(1)*13):es(0)=es(0)+1:re=5:gosub 2300:gosub 7500
+    6270 if en=1 then gosub 6300
 6290 return
-    6300 put sprite ep,(ex,ey),1,es
-    6320 put sprite ep+1,(ex,ey),11,8
+    6300 ex(1)=ex(1)-ev(1)
+    6305 if co mod 2=0 then es(1)=14
+    6310 if co mod 2<>0 then es(1)=13
+    6320 if ex(1)<0 then ex(1)=256: ey(1)=rnd(-time)*(192-140)+140
 6390 return
-    7000 ft=0:fm=4:fip=10:fp=fip:fs=11:fd=0:fv=0
-    7010 dim fx(fm),fy(fm),fw(fm),fh(fm),fm(fm),fp(fm),fs(fm),fc(fm),fa(fm)
+    6600 put sprite ep(0),(ex(0),ey(0)),1,es(0)
+    6620 'put sprite ep(0)+1,(ex(0),ey(0)),11,8
+    6630 if en=1 then put sprite 5,(ex(1),160),1,es(1)
+    6640 if en=2 then put sprite 5,(ex(1),160),1,es(1) :put sprite 6,(ex(2),160),1,es(2)
+6690 return
+    7000 fa=0:fm=4:fw=8:fh=2::fs=11:fp=11:fi=fs:fv=0:fd=0
+    7010 dim fx(fm),fy(fm),fm(fm),fp(fm),fs(fm),fc(fm),ft(fm)
 7020 return
-    7500 if ft=fm then return
-    7502 fx(ft)=ex:fy(ft)=ey+16:fw(ft)=16:fh(ft)=16
-    7504 fm(ft)=rnd(1)*(4-1)+1
-    7505 fp=fp+1:if fp=10 then fp=fip
-    7508 fp(ft)=fp:fs(ft)=fs
-    7510 line (120,20)-(180,30),7,bf
-    7520 if fm(ft)=0 then fc(ft)=1:preset (120,20): print #1,"MSX"
-    7530 if fm(ft)=1 then fc(ft)=4:preset (120,20): print #1,"Amstrad"
-    7540  if fm(ft)=2 then fc(ft)=6:preset (120,20): print #1,"Spectrum"
-    7550  if fm(ft)=3 then fc(ft)=13:preset (120,20): print #1,"Atari"
-    7560 fa(ft)=1
-    7570 ft=ft+1
-    7580 gosub 2900
+    7500 if fp+fa=fi+fm then fp=fs
+    7510 fp=fs+fa+1
+    7520 fp(fa)=fp
+    7530 fs(fa)=fs
+    7535 fx(fa)=ex(0):fy(fa)=ey(0)+8
+    7540 fc(fa)=rnd(-tile)*(9-4)+4
+    7545 line (120,20)-(180,30),7,bf
+    7550 if fm(ft)=0 then fc(ft)=4:preset (120,20): print #1,"MSX"
+    7555 if fm(ft)=1 then fc(ft)=5:preset (120,20): print #1,"Amstrad"
+    7560  if fm(ft)=2 then fc(ft)=6:preset (120,20): print #1,"Spectrum"
+    7565  if fm(ft)=3 then fc(ft)=7:preset (120,20): print #1,"Atari"
+    7570  if fm(ft)=3 then fc(ft)=8:preset (120,20): print #1,"Comodore"
+    7575  if fm(ft)=3 then fc(ft)=9:preset (120,20): print #1,"Amiga"
+    7580 fa=fa+1
+    7685 'gosub 2900
 7590 return
-    7600 fx(d)=-16:fy(d)=0:fp(d)=fp(ft-1):fs(d)=fs(ft-1):fc(d)=fc(ft-1)
-    7610 ft=ft-1
-    7620 re=9:gosub 2300
-    7630 gosub 2900
+    7600 if fa<=0 then return
+    7610 fp(fd)=fp(fa-1):fx(fd)=-16: fy(fd)=fy(fa-1): fc(fd)=fc(fa-1):fs(fd)=fs(fa-1)
+    7620 fa=fa-1:fp=fp-1
+    7625 re=9:gosub 2300
+    7630 'gosub 2900
 7690 return
-    7700 if ft=0 then return
-    7710 for i=0 to ft-1
-        7730 'if fy(i)>160-4 then fs(i)=fs(i)+1
-        7740 if fy(i)>150 then fd=i:gosub 7600
-        7745 fy(i)=fy(i)+fv
-    7750 next i
+    7700 if fa<0 then return
+        7720 fy(ft)=fy(ft)+fv
+        7730 if fy(ft)>155 then fs(ft)=fs(ft)+1
+        7740 if fy(ft)>160 then gosub 7600
 7790 return
-    7800 if ft=0 then put sprite 10,(-16,0),1,11: return
-    7805 for i=0 to ft-1
-        7810 if i=0 then put sprite 10,(fx(i),fy(i)),fc(i),fs(i)
-        7820 if i=1 then  put sprite 11,(fx(i),fy(i)),fc(i),fs(i)
-        7830 if i=2 then  put sprite 12,(fx(i),fy(i)),fc(i),fs(i)
-    7880 next i
+    7800 if fa<0 then return
+    7810 put sprite fp(ft),(fx(ft),fy(ft)),fc(ft),fs(ft)
 7890 return 
     11000 mw=0:ml=0:ms=0:mm=9:mc=0:md=0
     11010 dim mf(512,9)
@@ -157,16 +168,11 @@
         11170 next j
     11180 next i
 11190 return
-    11300 a=usr3(0)
+    11300 a=usr3(0):if ml=3 then ml=0
     11320 '_turbo on(mf(),ml)
     11330 if ml=0 then gosub 12000
     11331 if ml=1 then gosub 12100:re=7:gosub 2300
     11332 if ml=2 then gosub 12200:re=7:gosub 2300
-    11333 if ml=3 then gosub 12300:re=7:gosub 2300
-    11334 if ml=4 then gosub 12400:re=7:gosub 2300
-    11335 if ml=5 then gosub 12500:re=7:gosub 2300
-    11336 if ml=6 then gosub 12600:re=7:gosub 2300
-    11337 if ml=7 then gosub 12700:re=7:gosub 2300
     11350 for i=0 to 512
         11360 vpoke 6144+256+i,mf(i,ml)
     11380 next i 
@@ -193,28 +199,29 @@
     11920 draw ("r180d100")
     11930 draw("bm50,60u20r160d20")
 11940 return
-    12000 pc=3
+    12000 pc=5:pe=30:er=0
     12010 px=100:py=150
     12020 en=1
-    12030 ev=5
+    12030 ev(0)=15
     12040 fv=8
 12090 return
-    12100 'ft=0
-    12110 ex=8*7:ey=8*10:er=1
-    12120 pc=2
+    12100 fa=0
+    12110 en=0:ex(0)=8*7:ey(0)=8*10:er(0)=1
+    12120 pc=5
     12130 gosub 2900
 12190 return
-    12200 pc= 3:ev=5
+    12200 pc=3:fa=0
+    12210 ev(0)=20:er(0)=0
 12210 return
-    12300 pc= 3:ev=7
+    12300 pc= 3:ev(0)=7
 12310 return
-    12400 pc= 3:ev=5
+    12400 pc= 3:ev(0)=5
 12410 return
-    12500 pc= 1:ev=10
+    12500 pc= 1:ev(0)=10
 12510 return
-    12600 pc= 1:ev=6
+    12600 pc= 1:ev(0)=6
 12610 return
-    12700 pc= 1:ev=5
+    12700 pc= 1:ev(0)=5
 12710 return
-    12800 pc= 1:ev=5
+    12800 pc= 1:ev(0)=5
 12810 return

@@ -36,6 +36,7 @@
 150 gosub 7000 
 1 'Mostramos la pantalla de bienvenida'
 170 gosub 11500
+180 print #1,"Loading tilset word 0"
 1 'Ponemos un 0 el el bit 7 del rgistro 1 del vdp para poner la pantalla del color del borde'
 1 'para que no se vea la carga del archivo de tileset'
 1 '400 vdp(1)=vdp(1) xor 64
@@ -73,11 +74,16 @@
     1 'Actualizamos enemigo'
     2030 gosub 6200
     1 'Render enemigo'
-    2040 GOSUB 6300
-    1 'Actualizamos los paquetes'
-    2050 gosub 7700
-    1 'Render paquete'
-    2060 gosub 7800
+    2040 GOSUB 6600
+
+    2041 for ft=0 to fa-1
+        1 'Actualizamos los paquetes'
+        2050 gosub 7700
+        1 'Render paquete'
+        2060 gosub 7800
+    2062 next ft
+
+
      1 'Chequeamos el cambio de nivel o pantalla y actualizamos la lógica de los niveles'
     2070 if pc=0 then ml=ml+1: gosub 11300
     1 'bucle'
@@ -96,7 +102,7 @@
     2200 a=usr3(0)
 2220 return
 1 'Reproductor de efectos d sonido'
-    1 'play, c=do, d=re, e=mi, f=fa, g=sol, a=la, b=si
+    1 'play, c=do, d=re, e=mi, f=ft, g=sol, a=la, b=si
     1 'xvariable$, ejecuta el string que contiene variable$'
     1 'nx, número nota musical del do al si,siendo x un número entre 0-96, de la 0 octava (0-12) a la 8 octava (80-92), por defecto está la 4 octava (36-47) '
     1 'on, siedo n la octava entre 0-8'
@@ -195,19 +201,22 @@
     2630 if py>192-16 then py=192-16
 
     1'Colision del player con los paquetes'
-    2640 for i=0 to ft-1
-        2650 if px < fx(i) + fw(i) and  px + pw > fx(i) and py < fy(i) + fh(i) and ph + py > fy(i) then gosub 2700
-        1 'If coordenada y+8 del paquete >y del prota then if x del paquete >x del prota and x+8 del paquete <x+8 del prota'
+    2640 for i=0 to fa-1
+        2650 if px < fx(i) + fw and  px + pw > fx(i) and py < fy(i) + fh and ph + py > fy(i) then gosub 2700
+        1 'método de Juan
         1'2650 if fy(0)+16 > py and py < fy(0)+16 then if fx(0)<px+16 and fx(0)+16 > px then beep
     2660 next i
     
 2690 return
 1 'Colision del player con el paquete 2'
-    2700 re=6: gosub 2300: pc=pc-1:sprite off:'gosub 7600
+    1 'hacemos un sonido, descntamos las camputras y llamamos a la rutina eliminar'
+    2700 re=6: gosub 2300: pc=pc-1:gosub 7600
     1 'Borramos lo que había antes donde sale el nombre de los ordenadores'
     2710 line (120,20)-(180,30),7,bf
-    2720 preset (120,20):  print #1,"Cogido!"
-2730 return
+    2720 preset (120,20):  print #1,"Capurado!!!"
+    1 'Actualizamos el HUD'
+    2730 gosub 2900
+2740 return
 
 
 
@@ -225,10 +234,10 @@
     2800 '
     2805 line (0,0)-(80,60),7,bf
     2810 PRESET(10,5):PRINT#1,"level: "
-    2820 PRESET(10,15):PRINT#1,"Faltan: "
+    2820 PRESET(10,15):PRINT#1,"faltan: "
     2830 'PRESET(10,25):PRINT#1,"Vidas: "
     2840 'PRESET(10,35):PRINT#1,"Modelo: "
-    2850 'PRESET(10,45):PRINT#1,"num: "
+    2850 'PRESET(10,45):PRINT#1,"Activos: "
 2860 return
 
 
@@ -236,11 +245,11 @@
     1 'El borrado de lo que había antes lo hacemos con un line'
     2900 line (80,0)-(256,60),7,bf
     1 'Coloreado'
-    2960 PRESET(80,5):PRINT#1,ml
-    2970 PRESET(80,15):PRINT#1,pc
+    2960 PRESET(80,5):PRINT#1,co
+    2970 PRESET(80,15):PRINT#1,es(1)
     2980 'PRESET(80,25):PRINT#1,pw","ph","fw(0)","fh(0)
     2990 'PRESET(80,35):PRINT#1,"px:"px"py:"py
-    3000 'PRESET(80,45):PRINT#1,mf(0,0)" "mf(1,0)" "mf(2,0)" "mf(3,0)
+    3000 'PRESET(80,45):PRINT#1,fa
 3020 return
 
 
@@ -276,12 +285,12 @@
 1 ' ----------------------'
 1 'Init player'
     1 'Componente position'
-    1 'la posición se define en las pantallas, pw=ancho, ph=alto, pv=velocidad'
+    1 'la posición se define en las pantallas, pw=ancho, ph=alto, pv=velocidad, capturas, etc'
     5000 px=0:py=0:pw=16:ph=16:pv=8
     1 'Componente render: Plano 1(para el color) y 0 para el personaje, sprite del 0(para el color) y del 1 al 7 para el personaje'
     5010 pp=0:ps=1
-    1 'Componente RPG=player capturas y energía o vida'
-    5030 pc=5:pe=100
+    1 'Componente RPG=player capturas y energía o vida, se define en las pantallas'
+    5030 pc=0:pe=0
 5040 return
 
 1 'Update player'
@@ -291,7 +300,7 @@
     1 'El sprite de nuestro personaje es el 1, plano 0'
     5100 put sprite pp,(px,py),1,ps
     1 'El sprute 0 es el swter de color amarillo, plano 1'
-    5110 put sprite pp+1,(px,py),11,0
+    5110 'put sprite pp+1,(px,py),11,0
 5190 return
 
 
@@ -308,16 +317,23 @@
 1 '---------------------------------------------------------'
 1 'init enemy'
     1 'Componente position'
-    6000 ex=16*8:ey=5*17
+    1 'La mujer'
+    6000 ex(0)=16*8:ey(0)=5*17
+    1 'EL perro'
+    6005 ex(1)=255:ey(1)=160
+    1 'El crio'
+    6006 ex(2)=0:ey(2)=140
     6010 'epx=0:epy=0
     1 'La velocidad en la que vuelve a tirar un'
-    6015 ev=40
+    6015 ev(0)=40:ev(1)=8:ev(2)=8
     1 'Para saber si el enemig tiene que seguir una ruta 0 es que no'
-    6020 er=0:nu=0
+    6020 er(0)=0:'nu(0)=0
     1 'Los sprites son el 0 y el 1'
-    6030 ep=1:es=9
+    6030 ep(0)=1
+    1 'El sprite de la mujer es el 0, el del perro es el 1'
+    6035 es(0)=9:es(1)=13
     1 ' Enemigo tipo'
-    6040 et=0
+    6040 en=0:et(0)=0
     1 'Rutas del enemigo'
     6050 dim e(13),c(13)
     1 '1 Fila de ventanas'
@@ -334,26 +350,49 @@
     1 ' aumentamos el contador para que al mod de 40 tire un paquete'
     6200 co=co+1
     1 'Le ponemos el sprite 1 que lo podemos cambiar cuando sea mod de 40'
-    6210 ep=3:es=9
-    6220 'epx=ex:epy=ey
+    6210 ep(0)=3:es(0)=9
     1 ' cada vez que sea 20
     1 '1.Ponemos el contador a 0 y generamos un número aleatorio en contador (co),si está en er=enegigo ruta 1 le asignamos la posición aleatoria del array,
     1 '2.Le cambiamos el sprite a la mujer para que parezca que tira el paquete'
     1 '3 Emitimos el efecto de sonido re=5(linea 2300)'
     1 '4.Como hay que desactivar las colisiones de los sprites cada vez que haya una, las volvemos a activar'
     1 '5.Creamos un paquete nuevo (línea 7500)'
-    6250 if co mod ev=0 and er=0 and ft<>fm-1 then co=0:ex=rnd(1)*(160-50)+50:es=es+1:re=5:gosub 2300:gosub 7500:sprite on
-    6260 if co mod ev=0 and er=1 and ft<>fm-1 then co=0:ex=e(rnd(1)*13):ey=c(rnd(1)*13):es=es+1:re=5:gosub 2300:gosub 7500:'sprite on
+    6250 if co mod ev(0)=0 and er(0)=0 and fa<>fm-1 then co=0:ex(0)=rnd(1)*(160-50)+50:es(0)=es(0)+1:re=5:gosub 2300:gosub 7500
+    6260 if co mod ev(0)=0 and er(0)=1 and fa<>fm-1 then co=0:ex(0)=e(rnd(1)*13):ey(0)=c(rnd(1)*13):es(0)=es(0)+1:re=5:gosub 2300:gosub 7500
+    1 'Perro'
+    1 'Si el numero de enemigos es 1 mostramos a la mujer y al perro'
+    6270 if en=1 then gosub 6300
+    1 'niño'
+    1 'Si el numero de enemigos es 2 mostramos a la mujer, al perro y el niño'
+    1 '6280 if en=2 then gosub 6300: gosub 6400
     1 'Solo para debugger'
-    1 '6270 if co mod 40=0 then gosub 2900
+    1 '6285 if co mod 40=0 then gosub 2900
 6290 return
+
+1 'Renderizar perro'
+    1 'Perro '
+    6300 ex(1)=ex(1)-ev(1)
+    6305 if co mod 2=0 then es(1)=14
+    6310 if co mod 2<>0 then es(1)=13
+    6320 if ex(1)<0 then ex(1)=256: ey(1)=rnd(-time)*(192-140)+140
+6390 return
+1 '1 'Renderizar niño
+1 '    6400 ex(2)=ex(2)-ev(2)
+1 '    6405 if co mod 2=0 then es(1)=15
+1 '    6410 if co mod 2<>0 then es(2)=16
+1 '    6420 if ex(1)>256 then ex(2)=0: ey(2)=rnd(-time)*(192-140)+140
+1 '6490 return
 
 1 'Render'
     1 'El sprite de nuestra mujer es el 9, el plano el 3'
-    6300 put sprite ep,(ex,ey),1,es
+    6600 put sprite ep(0),(ex(0),ey(0)),1,es(0)
     1 'Le ponemos un 2 plano al personaje para que le pinte los brazos de color naranja, sprite 8'
-    6320 put sprite ep+1,(ex,ey),11,8
-6390 return
+    6620 'put sprite ep(0)+1,(ex(0),ey(0)),11,8
+    6630 if en=1 then put sprite 5,(ex(1),160),1,es(1)
+    6640 if en=2 then put sprite 5,(ex(1),160),1,es(1) :put sprite 6,(ex(2),160),1,es(2)
+6690 return
+
+
 
 
 1 '---------------------------------------------------------'
@@ -361,81 +400,65 @@
 1 '---------------------------------------------------------'
 1 'Init paquete'
     1 'El sprite del barril es el 7'
-    1 'ft=número paquete o turno, se utiliza para ir ocupando el espacio de memoria oportuno'
+    1 'fa=Serán los paquetes que estarán activos, que deberemos pintar y actualizar
+    1 'fm=paquetes máximos'
+    1 'fw=ancho del sprite, solo se utilzia en colision'
+    1 'fh=alto del sprite, solo se utilzia en colision'
+    1 'fp=plano inicial del paquete'
+    1 ''
+    1 'ft=turno paquete, variable utilizada para renderizar y actualizar el paquete oportuno'
     1 'fs=paquete sprite'
-    1 'fv=paquete velocidad
-    1 'fm=fire modelo=0=MSX,1=AMSTRAD, 2=SPECTRUM,3=ATARI'
-    1 'fip= inicial plano'
+    1 'fv=paquetes velocidads
+    1 'fc=fire color=0=MSX,1=AMSTRAD, 2=SPECTRUM,3=ATARI'
     1 'fs esprite inicial'
-    1 'fd paquete a borrar'
-    7000 ft=0:fm=4:fip=10:fp=fip:fs=11:fd=0:fv=0
-    7010 dim fx(fm),fy(fm),fw(fm),fh(fm),fm(fm),fp(fm),fs(fm),fc(fm),fa(fm)
+    1 'fd=paquete delete'
+    7000 fa=0:fm=4:fw=8:fh=2::fs=11:fp=11:fi=fs:fv=0:fd=0
+    7010 dim fx(fm),fy(fm),fm(fm),fp(fm),fs(fm),fc(fm),ft(fm)
 7020 return
 
 1 'Crear paquete'
-    1 ' Para crear objetos siempre trabajaremos con un menos, en contador de número siempre habrá uno más'
-    7500 if ft=fm then return
-    1 'La posición será la del el player + su altura'
-    7502 fx(ft)=ex:fy(ft)=ey+16:fw(ft)=16:fh(ft)=16
-    1 'modelo ataris, msx, etc'
-    7504 fm(ft)=rnd(1)*(4-1)+1
-    1 ' plano, crearemos 10 planos o objetos como mucho que se pueden mover a la vez, el inicial será el 2'
-    7505 fp=fp+1:if fp=10 then fp=fip
-    1 ' INicializaremos el plano y el sprite del array'
-    7508 fp(ft)=fp:fs(ft)=fs
-    1 'Borramos lo que había antes'
-    7510 line (120,20)-(180,30),7,bf
-    1 'Si es un MSX el color es un negro'
-    7520 if fm(ft)=0 then fc(ft)=1:preset (120,20): print #1,"MSX"
-    1 'Si es un amstrad el color es un azul'
-    7530 if fm(ft)=1 then fc(ft)=4:preset (120,20): print #1,"Amstrad"
-    1 'Si es un spectrum el color es un rojo'
-    7540  if fm(ft)=2 then fc(ft)=6:preset (120,20): print #1,"Spectrum"
-    1 'Si es un atari el color es fucsia'
-    7550  if fm(ft)=3 then fc(ft)=13:preset (120,20): print #1,"Atari"
-    7560 fa(ft)=1
-    7570 ft=ft+1
-    7580 gosub 2900
+    1 'Controlamos que el plano no se pase'
+    7500 if fp+fa=fi+fm then fp=fs
+    7510 fp=fs+fa+1
+    7520 fp(fa)=fp
+    7530 fs(fa)=fs
+    7535 fx(fa)=ex(0):fy(fa)=ey(0)+8
+    7540 fc(fa)=rnd(-tile)*(9-4)+4
+    1 'Borramos lo que había antes y mostramos un mensaje'
+    7545 line (120,20)-(180,30),7,bf
+    7550 if fm(ft)=0 then fc(ft)=4:preset (120,20): print #1,"MSX"
+    7555 if fm(ft)=1 then fc(ft)=5:preset (120,20): print #1,"Amstrad"
+    7560  if fm(ft)=2 then fc(ft)=6:preset (120,20): print #1,"Spectrum"
+    7565  if fm(ft)=3 then fc(ft)=7:preset (120,20): print #1,"Atari"
+    7570  if fm(ft)=3 then fc(ft)=8:preset (120,20): print #1,"Comodore"
+    7575  if fm(ft)=3 then fc(ft)=9:preset (120,20): print #1,"Amiga"
+    7580 fa=fa+1
+    1 'Solo para debugger'
+    7685 'gosub 2900
 7590 return
-
 1 'Delete paquete'
-    1 '7600 fx(i)=fx(ft-1):fy(i)=fy(ft-1):fp(i)=fp(ft-1):fs(i)=fs(ft-1):fc(i)=fc(ft-1):sprite off:ft=ft-1
-    1 'Pasamos todos los datos del utimo al eliminado'
-    7600 fx(d)=-16:fy(d)=0:fp(d)=fp(ft-1):fs(d)=fs(ft-1):fc(d)=fc(ft-1)
-    1 'Descontamos 1 en el contador paa que no  dibuje 1'
-    7610 ft=ft-1
-    7620 re=9:gosub 2300
-    7630 gosub 2900
+    7600 if fa<=0 then return
+    7610 fp(fd)=fp(fa-1):fx(fd)=-16: fy(fd)=fy(fa-1): fc(fd)=fc(fa-1):fs(fd)=fs(fa-1)
+    1 'disminuimos los paquetes activos y los planos'
+    7620 fa=fa-1:fp=fp-1
+    1 'Hacemos un sonido'
+    7625 re=9:gosub 2300
+    1 'Solo para debugger'
+    7630 'gosub 2900
 7690 return
-
-
-
 1 ' update paquete'
-    7700 if ft=0 then return
-    7710 for i=0 to ft-1
-        1 'Aumentamos la y en 1 para que se mueva'  
-
-        1 'Si el paquete llega abajo le ponemos que no está axyivo'
-        1 'Si el paquete llega a 158 le cambiamos el sprite al siguiente del inicial'
-        7730 'if fy(i)>160-4 then fs(i)=fs(i)+1
-        1 'y si llega al final los borramos'
-        1 'Si llega al suelo, lo eliminamos'
-        1 '7740 if fy(i)>150 then fd=i:gosub 7600
-        7740 if fy(i)>150 then fd=i:gosub 7600
-        7745 fy(i)=fy(i)+fv
-    7750 next i
+    7700 if fa<0 then return
+        1 'le sumamos a todos los que están activos la velocidad'
+        7720 fy(ft)=fy(ft)+fv
+        1 ' Le cambiamos el sprite al que explota si llega a una posición'
+        7730 if fy(ft)>155 then fs(ft)=fs(ft)+1
+        1 'So llega al final llamamos a la rutina borrar paquete'
+        7740 if fy(ft)>160 then gosub 7600
 7790 return
-
 1 'render paquete'
-    7800 if ft=0 then put sprite 10,(-16,0),1,11: return
-    7805 for i=0 to ft-1
-        1 'Lo pintamos'
-        7810 if i=0 then put sprite 10,(fx(i),fy(i)),fc(i),fs(i)
-        7820 if i=1 then  put sprite 11,(fx(i),fy(i)),fc(i),fs(i)
-        7830 if i=2 then  put sprite 12,(fx(i),fy(i)),fc(i),fs(i)
-    7880 next i
+    7800 if fa<0 then return
+    7810 put sprite fp(ft),(fx(ft),fy(ft)),fc(ft),fs(ft)
 7890 return 
-
 
 
 
@@ -513,23 +536,63 @@
 
 
 1 'Cargar mapa del array y meterlo en la VRAM
-    11300 a=usr3(0)
+    11300 a=usr3(0):if ml=3 then ml=0
     11320 '_turbo on(mf(),ml)
     11330 if ml=0 then gosub 12000
     11331 if ml=1 then gosub 12100:re=7:gosub 2300
     11332 if ml=2 then gosub 12200:re=7:gosub 2300
-    11333 if ml=3 then gosub 12300:re=7:gosub 2300
-    11334 if ml=4 then gosub 12400:re=7:gosub 2300
-    11335 if ml=5 then gosub 12500:re=7:gosub 2300
-    11336 if ml=6 then gosub 12600:re=7:gosub 2300
-    11337 if ml=7 then gosub 12700:re=7:gosub 2300
+    1 '11333 if ml=3 then gosub 12300:re=7:gosub 2300
+    1 '11334 if ml=4 then gosub 12400:re=7:gosub 2300
+    1 '11335 if ml=5 then gosub 12500:re=7:gosub 2300
+    1 '11336 if ml=6 then gosub 12600:re=7:gosub 2300
+    1 '11337 if ml=7 then gosub 12700:re=7:gosub 2300
     11350 for i=0 to 512
         11360 vpoke 6144+256+i,mf(i,ml)
     11380 next i 
     11420 '_turbo off
     11440 a=usr4(0)
 11490 return
-
+1 'Modelo sin buffer, en este las líneas 11010, 11100--+ y 425 pueden ser eliminadas'
+1 '1 'Cargar mapa de disco y meterlo en la VRAM
+1 '    1 '1 cargamos el mapa
+1 '    1 'Cada mapa ocupa 862 bytes'
+1 '    1 'md=mapa dirección, la dirección c001 se la he puesto yo en el archivo binario cuando lo creé'
+1 '    1 'El archivo tan solo contiene los datos de la definición de los mapas'
+1 '    1 'Cuando se lea otro nivel se inicializarán las pantallas y sonorá una musiquilla'
+1 '    11300 bload"world0.bin",r
+1 '    1 '11300 if ml=0 then bload"level0.bin",r:gosub 12000
+1 '    1 '11310 if ml=1 then bload"level1.bin",r:gosub 12300:re=7:gosub 2300
+1 '    1 '11311 if ml=2 then bload"level0.bin",r:gosub 12400:re=7:gosub 2300
+1 '    11315 'vdp(1)=vdp(1) xor 64
+1 '    11316 a=usr3(0)
+1 '    11320 '_turbo on
+1 '    1 'Como no vamos a usar los 3 trozos de pantalla (o bancos) en lugar de 768 (mirar la distribución de la tabla de nombres de la RAM) utilizaremos 512'
+1 '    1 '6912-6400=512(&h200)'
+1 '    1 '45057=&hb001 (del b001 al b200), 45057+512=&hb034 (del b201 al 400), 45057+(512*2)=&hb401 (del 401 al 600)
+1 '    11330 if ml=0 then md=&hb001:gosub 12000
+1 '    11331 if ml=1 then md=&hb201:gosub 12100:re=7:gosub 2300
+1 '    11332 if ml=2 then md=&hb401:gosub 12200:re=7:gosub 2300
+1 '    11333 if ml=3 then md=&hb601:gosub 12300:re=7:gosub 2300
+1 '    11334 if ml=4 then md=&hb801:gosub 12400:re=7:gosub 2300
+1 '    11335 if ml=5 then md=&hba01:gosub 12500:re=7:gosub 2300
+1 '    11336 if ml=6 then md=&hbc01:gosub 12600:re=7:gosub 2300
+1 '    11337 if ml=7 then md=&hbe01:gosub 12700:re=7:gosub 2300
+1 '    1 '11338 if ml=8 then md=&hb1001:gosub 12800:re=7:gosub 2300
+1 '
+1 '    11340 for i=0 to mm-1
+1 '        1 'Copia desde base(10) 6144 (&h1800) hasta la &h1aff,6144+768=6912
+1 '        1 'Nuestro mapa ha sido definido con tiles de 8x8 pixeles'
+1 '        1 'La definición de nuestro mapa son 512 bytes'
+1 '        11350 for j=6144+256 to 6912
+1 '                1 'Como los tiles los habíamos cargado previamente en RAM ahora solo los pasamos a VRAM'
+1 '                11360 vpoke j,peek(md)
+1 '                11370 md=md+1
+1 '        11380 next j  
+1 '    11410 next i
+1 '    11420 '_turbo off
+1 '    11430 'vdp(1)=vdp(1) or 64
+1 '    11440 a=usr4(0)
+1 '11490 return
 
 
 
@@ -587,7 +650,7 @@
     11700 'nada'
 11710 return
 1'------------------------------------'
-1'    Salón de la fama o records 
+1'    Salón de la ftma o records 
 1'------------------------------------'
     11800 'nada'
 11810 return
@@ -619,14 +682,14 @@
 1 '---------------------------------------------------------'
 1 'Init'
     1 'Objetivo coger 3 paquetes'
-    1 'pc=player capturas que tiene que hacer'
-    12000 pc=3
+    1 'pc=player capturas que tiene que hacer, pe=energia player, er modo de sie el enemigo sale aleatorio o con 1 array definido'
+    12000 pc=5:pe=30:er=0
     1 'posición del player abajo en el centro'
     12010 px=100:py=150
-    1 'en=numero de enemigos'
+    1 'en=numero de enemigos, el 0 solo la mujer, el 1 la mujer y el perro, el 2 la mujer el perro y el niño'
     12020 en=1
     1 ' Tiempo que tarda en aparecer el malo'
-    12030 ev=5
+    12030 ev(0)=15
     1 'Velocidad en el que caen los objetos'
     12040 fv=8
 
@@ -638,56 +701,57 @@
 1 'init'
     1 'objetivo coger 3 paquetes'
     1 'Ponemos el numero de sprites de paquetes a 0'
-    12100 'ft=0
+    12100 fa=0
     1 'Ponemos que el enemigo se mueva según las coordenadas establecidas en un array'
-    12110 ex=8*7:ey=8*10:er=1
+    12110 en=0:ex(0)=8*7:ey(0)=8*10:er(0)=1
     1 'Aquí el player deberá d coger 6 aparatos'
-    12120 pc=2
+    12120 pc=5
     1 'Actualizamos el HUD'
     12130 gosub 2900
 12190 return
 
-1 '---------------------------------------------------------'
-1 '------------------------PANTALLA 2 ----------------------'
-1 '---------------------------------------------------------'
+1 '----------------------------------------------------------------'
+1 '------------------------PANTALLA 2 (ml=2) ----------------------'
+1 '----------------------------------------------------------------'
 1 'Objetivo coger 3 paquete y que no te pillen'
-    12200 pc= 3:ev=5
+    12200 pc=3:fa=0
+    12210 ev(0)=20:er(0)=0
 12210 return
 1 '---------------------------------------------------------'
 1 '------------------------PANTALLA 3 ----------------------'
 1 '---------------------------------------------------------'
 1 'Objetivo coger 3 paquete y que no te pillen'
-    12300 pc= 3:ev=7
+    12300 pc= 3:ev(0)=7
 12310 return
 1 '---------------------------------------------------------'
 1 '------------------------PANTALLA 4 ----------------------'
 1 '---------------------------------------------------------'
 1 'Objetivo coger 3 paquete y que no te pillen'
-    12400 pc= 3:ev=5
+    12400 pc= 3:ev(0)=5
 12410 return
 1 '---------------------------------------------------------'
 1 '------------------------PANTALLA 5 ----------------------'
 1 '---------------------------------------------------------'
 1 'Objetivo coger 3 paquete y que no te pillen'
-    12500 pc= 1:ev=10
+    12500 pc= 1:ev(0)=10
 12510 return
 1 '---------------------------------------------------------'
 1 '------------------------PANTALLA 6 ----------------------'
 1 '---------------------------------------------------------'
 1 'Objetivo coger 3 paquete y que no te pillen'
-    12600 pc= 1:ev=6
+    12600 pc= 1:ev(0)=6
 12610 return
 1 '---------------------------------------------------------'
 1 '------------------------PANTALLA 7 ----------------------'
 1 '---------------------------------------------------------'
 1 'Objetivo coger 3 paquete y que no te pillen'
-    12700 pc= 1:ev=5
+    12700 pc= 1:ev(0)=5
 12710 return
 1 '---------------------------------------------------------'
 1 '------------------------PANTALLA 8 ----------------------'
 1 '---------------------------------------------------------'
 1 'Objetivo coger 3 paquete y que no te pillen'
-    12800 pc= 1:ev=5
+    12800 pc= 1:ev(0)=5
 12810 return
 
 

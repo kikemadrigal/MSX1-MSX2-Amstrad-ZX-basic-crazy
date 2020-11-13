@@ -1,16 +1,18 @@
-5 bload"xbasic.bin",r
+
 1 'Inicilizamos dispositivo: 003B, inicilizamos teclado: 003E'
 10 defusr=&h003B:a=usr(0):defusr1=&h003E:a=usr1(0):defusr2=&H90:a=usr2(0)
-15 defusr3=&H41:defusr4=&H44
+20 defusr3=&H41:defusr4=&H44
 1 ' color letra negro, fondo letra: azul claro, borde blanco, quitamos las letras que aparecen abajo'
-20 color 1,7,15:key off:defint a-z
-30 screen 2,2,0
-35 open "grp:" as #1
+30 color 1,7,15:key off:defint a-z
+40 screen 2,2,0
+50 open "grp:" as #1
+60 print #1,"Loading xbasic"
+70 bload"xbasic.bin",r
+80 print #1,"Loading sprites"
 1 'Cargamos los sprites'
-50 gosub 10000
-
-
-500 load"game.bas",r
+90 gosub 10000
+100 print #1,"Loading game"
+110 load"game.bas",r
 
 
 
@@ -27,7 +29,7 @@
 1 'Rutina cargar sprites con datas basic'
     10000 RESTORE
     1 ' vamos a meter 5 definiciones de sprites nuevos que serán 4 para el personaje y uno para la bola'
-    10010 FOR I=0 TO 12:SP$=""
+    10010 FOR I=0 TO 14:SP$=""
         10020 FOR J=1 TO 32:READ A$
             10025 SP$=SP$+CHR$(VAL("&H"+A$))
         10030 NEXT J
@@ -80,16 +82,35 @@
     10540 DATA 00,F8,F8,F8,10,D0,D0,60
     10550 DATA 00,00,00,00,00,00,00,00
 
-    10560 DATA FF,FF,FF,FF,FF,FF,FF,FF
-    10570 DATA FF,FF,FF,FF,FF,FF,FF,FF
-    10580 DATA FF,FF,FF,FF,FF,FF,FF,FF
-    10590 DATA FF,FF,FF,FF,FF,FF,FF,FF
 
-    10600 DATA 00,00,00,00,00,00,00,00
-    10610 DATA 00,00,00,00,10,0A,0D,00
+    10560 DATA FF,FE,00,00,00,00,00,00
+    10570 DATA 00,00,00,00,00,00,00,00
+    10580 DATA 00,00,00,00,00,00,00,00
+    10590 DATA 00,00,00,00,00,00,00,00
+
+    10600 DATA 85,56,00,00,00,00,00,00
+    10610 DATA 00,00,00,00,00,00,00,00
     10620 DATA 00,00,00,00,00,00,00,00
-    10630 DATA 00,00,00,00,84,AC,70,00
+    10630 DATA 00,00,00,00,00,00,00,00
+
+    10640 DATA 00,00,00,00,00,00,06,04
+    10650 DATA 0C,3C,3F,0F,1E,28,18,00
+    10660 DATA 00,00,00,00,00,00,00,00
+    10670 DATA 30,20,E0,C0,60,60,C0,00
+
+    10680 DATA 00,00,00,00,00,00,06,04
+    10690 DATA 0C,3C,3F,0F,0E,14,22,00
+    10700 DATA 00,00,00,00,00,00,00,00
+    10710 DATA 00,04,FC,C0,60,70,20,00
 
 
+    10720 DATA 60,40,C0,40,C0,A0,00,00
+    10730 DATA 00,00,00,00,00,00,00,00
+    10740 DATA 00,00,00,00,00,00,00,00
+    10750 DATA 00,00,00,00,00,00,00,00
 
+    10760 DATA C0,80,C0,80,C0,A0,00,00
+    10770 DATA 00,00,00,00,00,00,00,00
+    10780 DATA 00,00,00,00,00,00,00,00
+    10790 DATA 00,00,00,00,00,00,00,00
 11590 return
