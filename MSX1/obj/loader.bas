@@ -11,8 +11,10 @@
 80 print #1,"Loading sprites"
 1 'Cargamos los sprites'
 90 gosub 10000
-100 print #1,"Loading game"
-110 load"game.bas",r
+100 'print #1,"Loading tilemap word 0"
+110 dim mf(512,9):gosub 11100
+120 print #1,"Loading game"
+130 load"game.bas",r
 
 
 
@@ -114,3 +116,32 @@
     10780 DATA 00,00,00,00,00,00,00,00
     10790 DATA 00,00,00,00,00,00,00,00
 11590 return
+
+
+
+1 'Cargar mundo con los mapas de los niveles en el buffer o array'
+    11100 bload"world0.bin",r
+    1 ' sabemos que niestro mapa empieza en dirección b001'
+    1 'Como no vamos a usar los 3 trozos de pantalla (o bancos) en lugar de 768 (mirar la distribución de la tabla de nombres de la RAM) utilizaremos 512'
+    1 '6912-6400=512(&h200)'
+    1 '45057=&hb001 (del b001 al b200), 45057+512=&hb034 (del b201 al 400), 45057+(512*2)=&hb401 (del 401 al 600)
+    1 'Nuestro mapa ha sido definido con tiles de 8x8 pixeles'
+    1 'La definición de nuestro mapa son 512 bytes'
+    1 'ml=0 = md=&hb001
+    1 'ml=1 = md=&hb201
+    1 'ml=2 = md=&hb401
+    1 'ml=3 = md=&hb601
+    1 'ml=4 = md=&hb801
+    1 'ml=5 = md=&hba01
+    1 'ml=6 = md=&hbc01
+    1 'ml=7 = md=&hbe01
+
+    11110 md=&hc001
+    11120 for i=0 to mm-1
+        1 'Esto se podría poner desde 0 hasta 512'
+        11130 for j=0 to 511
+            11140 tn=peek(md):md=md+1
+            11150 mf(j,i)=tn
+        11170 next j
+    11180 next i
+11190 return

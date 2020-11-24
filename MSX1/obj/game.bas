@@ -1,11 +1,11 @@
 80 defint a-z
 90 gosub 11000
-120 co=0:re=0
+120 co=0:re=0:in$=""
 130 gosub 5000
 140 gosub 6000
 150 gosub 7000 
-170 gosub 11500
-180 print #1,"Loading tilset word 0"
+170 'gosub 11500
+180 'print #1,"Loading tilset word 0"
 400 a=usr3(0)
 420 bload"tilesw0.bin",s
 425 gosub 11100
@@ -14,7 +14,9 @@
 490 'on sprite gosub 2700:sprite on
 500 gosub 2800:gosub 2900
 510 'bload"music.bin":defusr2=&h9500:a=usr2(0):defusr3=&h9509
-520 'on interval=2 gosub 2200:interval on
+520 strig(0) on:on strig gosub 5200
+530 time=0
+540 'on interval=50 gosub 2900
     2000 gosub 2500
     2010 gosub 2600
     2020 gosub 5100
@@ -29,7 +31,8 @@
 2090 goto 2000
     2200 a=usr3(0)
 2220 return
-    2300 if re=1 then PLAY"O5 L8 V4 M8000 A A D F G2 A A A A r60 G E F D C D G R8 A2 A2 A8","o1 v4 c r8 o2 c r8 o1 v6 c r8 o2 v4 c r8 o1 c r8 o2 v6 c r8"
+    2300 a=usr2(0)
+    2310 if re=1 then PLAY"O5 L8 V4 M8000 A A D F G2 A A A A r60 G E F D C D G R8 A2 A2 A8","o1 v4 c r8 o2 c r8 o1 v6 c r8 o2 v4 c r8 o1 c r8 o2 v6 c r8"
     2350 if re=5 then play "l10 o4 v4 g c"
     2360 if re=6 then play"t250 o5 v12 d v9 e" 
     2370 if re=7 then play "O5 L8 V4 M8000 A A D F G2 A A A A"
@@ -39,58 +42,63 @@
     2400 if re=10 then sound 6,5:sound 8,16:sound 12,6:sound 13,9
     2410 'for i=0 to 100: next i: a=usr2(0)
 2420 return
-    2500 'px=x:py=y
-    2510 on stick(0) gosub 2580,2500,2550,2500,2590,2500,2570
+    2500 'pj=player jump indica si el player está saltando para desactivar la comprobación del teclado
+    2510 if pj=0 then on stick(0) gosub 2580,2500,2550,2500,2590,2500,2570
     2520 if stick(0)=0 then ps=1
 2530 return
     2550 px=px+pv:ps=3
     2560 if co mod 2=0 then ps=ps+1
 2565 return
     2570 px=px-pv:ps=5
-    2572 if co mod 2=0 then ps=ps+1
+    2572 if co mod 2=0  then ps=ps+1
 2573 return
     2580 py=py-pv:ps=2
-    2582 if co mod 2=0 then ps=ps+1
+    2582 if co mod 2=0  then ps=ps+1
 2585 return
     2590 py=py+pv:ps=2:
-    2592 if co mod 2=0 then ps=ps+1
+    2592 if co mod 2=0  then ps=ps+1
 2595 return
     2600 if px>256-16 then px=256-16
     2610 if px<=0 then px=0
-    2620 if py<140 then py=140
+    2620 if py<136 then py=136
     2630 if py>192-16 then py=192-16
     2640 for i=0 to fa-1
         2650 if px < fx(i) + fw and  px + pw > fx(i) and py < fy(i) + fh and ph + py > fy(i) then gosub 2700
     2660 next i
-    
+    2670 if en=1 then if px < ex(1) + fw and  px + pw > ex(1) and py < ey(1) + fh and ph + py > ey(1) then pe=pe-1:beep:gosub 2900
 2690 return
     2700 re=6: gosub 2300: pc=pc-1:gosub 7600
-    2710 line (120,20)-(180,30),7,bf
+    2710 line (120,20)-(180,30),3,bf
     2720 preset (120,20):  print #1,"Capurado!!!"
     2730 gosub 2900
 2740 return
     2800 '
     2805 line (0,0)-(80,60),7,bf
-    2810 PRESET(10,5):PRINT#1,"level: "
-    2820 PRESET(10,15):PRINT#1,"faltan: "
-    2830 'PRESET(10,25):PRINT#1,"Vidas: "
-    2840 'PRESET(10,35):PRINT#1,"Modelo: "
-    2850 'PRESET(10,45):PRINT#1,"Activos: "
+    2806 PRESET(10,15):PRINT#1,"Energy: "
+    2810 PRESET(10,25):PRINT#1,"level: "
+    2820 PRESET(10,35):PRINT#1,"faltan: "
+    2830 'PRESET(10,35):PRINT#1,"Vidas: "
+    2850 'PRESET(10,45):PRINT#1,"jump: "
 2860 return
     2900 line (80,0)-(256,60),7,bf
-    2960 PRESET(80,5):PRINT#1,ml
-    2970 PRESET(80,15):PRINT#1,pc
-    2980 'PRESET(80,25):PRINT#1,pw","ph","fw(0)","fh(0)
-    2990 'PRESET(80,35):PRINT#1,"px:"px"py:"py
-    3000 'PRESET(80,45):PRINT#1,fa
+    2960 PRESET(80,15):PRINT#1,pe
+    2970 PRESET(80,25):PRINT#1,m1
+    2980 PRESET(80,35):PRINT#1,pc
+    3000 'PRESET(80,45):PRINT#1,""pj","py","po
 3020 return
-    5000 px=0:py=0:pw=16:ph=16:pv=8
+    5000 px=0:py=0:pw=16:ph=16:pv=8:pj=0:po=py:pe=100
     5010 pp=0:ps=1
     5030 pc=0:pe=0
 5040 return
     5100 put sprite pp,(px,py),1,ps
     5110 'put sprite pp+1,(px,py),11,0
+    5120 'if pj=1 and py<po-16 then py=py-2
+    5130 if pj=1 and py<po then py=py+2
+    5140 if pj=1 and py=po then pj=0:strig(0)on
 5190 return
+    5200 re=10: gosub 2300
+    5210 po=py:py=py-12:pj=1:strig(0)off
+5290 return
     
     6000 ex(0)=16*8:ey(0)=5*17
     6005 ex(1)=255:ey(1)=160
@@ -116,12 +124,12 @@
     6300 ex(1)=ex(1)-ev(1)
     6305 if co mod 2=0 then es(1)=14
     6310 if co mod 2<>0 then es(1)=13
-    6320 if ex(1)<0 then ex(1)=256: ey(1)=rnd(-time)*(192-140)+140
+    6320 if ex(1)<0 then ex(1)=255:ey(1)=rnd(-time)*(192-140)+140:gosub 2900
 6390 return
     6600 put sprite ep(0),(ex(0),ey(0)),1,es(0)
     6620 'put sprite ep(0)+1,(ex(0),ey(0)),11,8
-    6630 if en=1 then put sprite 5,(ex(1),160),1,es(1)
-    6640 if en=2 then put sprite 5,(ex(1),160),1,es(1) :put sprite 6,(ex(2),160),1,es(2)
+    6630 if en=1 then put sprite 5,(ex(1),ey(1)),1,es(1)
+    6640 if en=2 then put sprite 5,(ex(1),ey(1)),1,es(1) :put sprite 6,(ex(2),ey(2)),1,es(2)
 6690 return
     7000 fa=0:fm=4:fw=8:fh=2::fs=11:fp=11:fi=fs:fv=0:fd=0
     7010 dim fx(fm),fy(fm),fm(fm),fp(fm),fs(fm),fc(fm),ft(fm)
@@ -133,12 +141,12 @@
     7535 fx(fa)=ex(0):fy(fa)=ey(0)+8
     7540 fc(fa)=rnd(-tile)*(9-4)+4
     7545 line (120,20)-(180,30),7,bf
-    7550 if fm(ft)=0 then fc(ft)=4:preset (120,20): print #1,"MSX"
-    7555 if fm(ft)=1 then fc(ft)=5:preset (120,20): print #1,"Amstrad"
-    7560  if fm(ft)=2 then fc(ft)=6:preset (120,20): print #1,"Spectrum"
-    7565  if fm(ft)=3 then fc(ft)=7:preset (120,20): print #1,"Atari"
-    7570  if fm(ft)=3 then fc(ft)=8:preset (120,20): print #1,"Comodore"
-    7575  if fm(ft)=3 then fc(ft)=9:preset (120,20): print #1,"Amiga"
+    7550 if fm(ft)=0 then fc(ft)=4:preset (125,25): print #1,"MSX"
+    7555 if fm(ft)=1 then fc(ft)=5:preset (125,25): print #1,"Amstrad"
+    7560  if fm(ft)=2 then fc(ft)=6:preset (125,25): print #1,"Spectrum"
+    7565  if fm(ft)=3 then fc(ft)=7:preset (125,25): print #1,"Atari"
+    7570  if fm(ft)=3 then fc(ft)=8:preset (125,25): print #1,"Comodore"
+    7575  if fm(ft)=3 then fc(ft)=9:preset (125,25): print #1,"Amiga"
     7580 fa=fa+1
     7685 'gosub 2900
 7590 return
@@ -160,7 +168,7 @@
     11010 dim mf(512,9)
 11020 return
     11100 bload"world0.bin",r
-    11110 md=&hc001
+    11110 md=&hd001
     11120 for i=0 to mm-1
         11130 for j=0 to 511
             11140 tn=peek(md):md=md+1
@@ -168,7 +176,8 @@
         11170 next j
     11180 next i
 11190 return
-    11300 a=usr3(0):if ml=3 then ml=0
+    11300  bload"world0.bin",r:if ml=3 then ml=0
+    11310 'a=usr3(0)
     11320 '_turbo on(mf(),ml)
     11330 if ml=0 then gosub 12000
     11331 if ml=1 then gosub 12100:re=7:gosub 2300
@@ -177,7 +186,7 @@
         11360 vpoke 6144+256+i,mf(i,ml)
     11380 next i 
     11420 '_turbo off
-    11440 a=usr4(0)
+    11440 'a=usr4(0)
 11490 return
     11500 cls:preset (10,30):  print #1,"@@@@   @@@@    @    @@@@   @  @ "
     11510 preset (10,40):  print #1,"@      @@     @ @    @       @  "
@@ -199,7 +208,8 @@
     11920 draw ("r180d100")
     11930 draw("bm50,60u20r160d20")
 11940 return
-    12000 pc=5:pe=30:er=0
+    12000 in$="Coger paquetes"
+    12050 pc=5:pe=30:er=0
     12010 px=100:py=150
     12020 en=1
     12030 ev(0)=15

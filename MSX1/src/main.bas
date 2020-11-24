@@ -1,33 +1,13 @@
-1 '    -------------------- '
-1 '           CRAZY         '
-1 '     BASIC MURCIA 2020   '
-1 '    -------------------- '
-1 ' Main                       10'
-1 ' Welcome scrren y records  100'
-1 ' winning scrren            200'
-1 ' Game over                 300'
-1 ' Scrren 1                  400'
-1 ' Main loop:               2000'
-1 ' Input system:            2500'
-1 ' Colision system          2600'
-1 ' Render system            2700'
-1 ' GUI/HUD'                 2800'
-1 ' Player: --init:          5000'
-1 '        |__update         5100'
-1 ' Enemy:  --init:          6000'
-1 '        |__update:        6200'
-1 ' Fire: --init:            7000'
-1 '       |_create:          7500'
-1 '       --update:          7600'
-1 ' Sprite definitions:      8000'
-1 ' Maps definitions:       12000~'
 
 
 80 defint a-z
 1 'Inicializamos variables de mapa'
 90 gosub 11000
 1 ' Variables el juego'
-120 co=0:re=0
+1 'co= contador para el movimiento del enemigo'
+1 're=reproductor de música, para elegir una melodía'
+1 'in=iinformación misón'
+120 co=0:re=0:in$=""
 1 'Inicializamos el personaje'
 130 gosub 5000
 1 'Inicialización enemigo'
@@ -35,8 +15,8 @@
 1 'Inicialización paquete'
 150 gosub 7000 
 1 'Mostramos la pantalla de bienvenida'
-170 gosub 11500
-180 print #1,"Loading tilset word 0"
+170 'gosub 11500
+180 'print #1,"Loading tilset word 0"
 1 'Ponemos un 0 el el bit 7 del rgistro 1 del vdp para poner la pantalla del color del borde'
 1 'para que no se vea la carga del archivo de tileset'
 1 '400 vdp(1)=vdp(1) xor 64
@@ -56,8 +36,10 @@
 500 gosub 2800:gosub 2900
 1 'cargamos la música en la RAM y la llamamos desde basic'
 510 'bload"music.bin":defusr2=&h9500:a=usr2(0):defusr3=&h9509
-1 'Activamos los intervalos para que cada 2/60 segundos reproduzca un bloque de música'
-520 'on interval=2 gosub 2200:interval on
+1 'Rutina barra espaciadora pulsada
+520 strig(0) on:on strig gosub 5200
+530 time=0
+540 'on interval=50 gosub 2900
 
 
 1 'Solo se saldrá de este bucle si se ha llegado al final de la pantalla'
@@ -85,6 +67,7 @@
 
 
      1 'Chequeamos el cambio de nivel o pantalla y actualizamos la lógica de los niveles'
+     1 'Si las capturas del player llegan a 0 entonces cambiamos el nivel y llamamos a la rutina de carga de niveles e inicialización de mapas'
     2070 if pc=0 then ml=ml+1: gosub 11300
     1 'bucle'
     2080 'if co mod 10=0 then gosub 2900
@@ -114,7 +97,8 @@
     1 'Sn, siendo n la forma de la enfolvente de 0-15, sirve para que vaya desapareciendo el sonido
     1 'Melodía completa'
     1 '2300 if re=1 then PLAY"O5 L8 V4 M8000 A A D F G2 A A A A D E F G E F D C D G R8 O5 A2 A2 A8"
-    2300 if re=1 then PLAY"O5 L8 V4 M8000 A A D F G2 A A A A r60 G E F D C D G R8 A2 A2 A8","o1 v4 c r8 o2 c r8 o1 v6 c r8 o2 v4 c r8 o1 c r8 o2 v6 c r8"
+    2300 a=usr2(0)
+    2310 if re=1 then PLAY"O5 L8 V4 M8000 A A D F G2 A A A A r60 G E F D C D G R8 A2 A2 A8","o1 v4 c r8 o2 c r8 o1 v6 c r8 o2 v4 c r8 o1 c r8 o2 v6 c r8"
     1 'Tirando el paquete'
     2350 if re=5 then play "l10 o4 v4 g c"
     1 'Paquete cogido'
@@ -135,7 +119,7 @@
     1 '12 velocidad envolvente de 0-255
     1 '13 forma envolmente para que desaparezca en el tiempo la nota de 0-15'
     1 'En este ejemplo trabajamos solo con el ruido, el 6, el 8 =16 significa que vamos a variar el volumen con el 12 y el 13 para que desaparezca'
-    1 'Paquete ha explotado'
+    1 'Sato personaje'
     2400 if re=10 then sound 6,5:sound 8,16:sound 12,6:sound 13,9
     1 'Volvemos a dejar el psg como estaba'
     2410 'for i=0 to 100: next i: a=usr2(0)
@@ -162,8 +146,8 @@
 
 1 '2 Sistema de input'
     1 'Nos guardamos las posiciones del player antes de cambiarlas'
-    2500 'px=x:py=y
-    2510 on stick(0) gosub 2580,2500,2550,2500,2590,2500,2570
+    2500 'pj=player jump indica si el player está saltando para desactivar la comprobación del teclado
+    2510 if pj=0 then on stick(0) gosub 2580,2500,2550,2500,2590,2500,2570
     2520 if stick(0)=0 then ps=1
 2530 return
 1 're=8 es el efecto de sonido 8 de la rutina de reprodución de sonidos 2300
@@ -173,15 +157,15 @@
 2565 return
 1 '7 izquierda'
     2570 px=px-pv:ps=5
-    2572 if co mod 2=0 then ps=ps+1
+    2572 if co mod 2=0  then ps=ps+1
 2573 return
 1 '1 arriba'
     2580 py=py-pv:ps=2
-    2582 if co mod 2=0 then ps=ps+1
+    2582 if co mod 2=0  then ps=ps+1
 2585 return
 1 '5 abajo' 
     2590 py=py+pv:ps=2:
-    2592 if co mod 2=0 then ps=ps+1
+    2592 if co mod 2=0  then ps=ps+1
 2595 return
 
 
@@ -197,7 +181,7 @@
     1 'Colisiones del player con la pantalla'
     2600 if px>256-16 then px=256-16
     2610 if px<=0 then px=0
-    2620 if py<140 then py=140
+    2620 if py<136 then py=136
     2630 if py>192-16 then py=192-16
 
     1'Colision del player con los paquetes'
@@ -206,13 +190,14 @@
         1 'método de Juan
         1'2650 if fy(0)+16 > py and py < fy(0)+16 then if fx(0)<px+16 and fx(0)+16 > px then beep
     2660 next i
-    
+     1'Colision del player con el perro'
+    2670 if en=1 then if px < ex(1) + fw and  px + pw > ex(1) and py < ey(1) + fh and ph + py > ey(1) then pe=pe-1:beep:gosub 2900
 2690 return
 1 'Colision del player con el paquete 2'
     1 'hacemos un sonido, descntamos las camputras y llamamos a la rutina eliminar'
     2700 re=6: gosub 2300: pc=pc-1:gosub 7600
     1 'Borramos lo que había antes donde sale el nombre de los ordenadores'
-    2710 line (120,20)-(180,30),7,bf
+    2710 line (120,20)-(180,30),3,bf
     2720 preset (120,20):  print #1,"Capurado!!!"
     1 'Actualizamos el HUD'
     2730 gosub 2900
@@ -233,11 +218,11 @@
 1 'Cabcera'
     2800 '
     2805 line (0,0)-(80,60),7,bf
-    2810 PRESET(10,5):PRINT#1,"level: "
-    2820 PRESET(10,15):PRINT#1,"faltan: "
-    2830 'PRESET(10,25):PRINT#1,"Vidas: "
-    2840 'PRESET(10,35):PRINT#1,"Modelo: "
-    2850 'PRESET(10,45):PRINT#1,"Activos: "
+    2806 PRESET(10,15):PRINT#1,"Energy: "
+    2810 PRESET(10,25):PRINT#1,"level: "
+    2820 PRESET(10,35):PRINT#1,"faltan: "
+    2830 'PRESET(10,35):PRINT#1,"Vidas: "
+    2850 'PRESET(10,45):PRINT#1,"jump: "
 2860 return
 
 
@@ -245,11 +230,10 @@
     1 'El borrado de lo que había antes lo hacemos con un line'
     2900 line (80,0)-(256,60),7,bf
     1 'Coloreado'
-    2960 PRESET(80,5):PRINT#1,ml
-    2970 PRESET(80,15):PRINT#1,pc
-    2980 'PRESET(80,25):PRINT#1,pw","ph","fw(0)","fh(0)
-    2990 'PRESET(80,35):PRINT#1,"px:"px"py:"py
-    3000 'PRESET(80,45):PRINT#1,fa
+    2960 PRESET(80,15):PRINT#1,pe
+    2970 PRESET(80,25):PRINT#1,m1
+    2980 PRESET(80,35):PRINT#1,pc
+    3000 'PRESET(80,45):PRINT#1,""pj","py","po
 3020 return
 
 
@@ -286,7 +270,9 @@
 1 'Init player'
     1 'Componente position'
     1 'la posición se define en las pantallas, pw=ancho, ph=alto, pv=velocidad, capturas, etc'
-    5000 px=0:py=0:pw=16:ph=16:pv=8
+    1 'pj=indica si el salto está activado para desactivar la comprobación del teclado'
+    1 'po=player y old'
+    5000 px=0:py=0:pw=16:ph=16:pv=8:pj=0:po=py:pe=100
     1 'Componente render: Plano 1(para el color) y 0 para el personaje, sprite del 0(para el color) y del 1 al 7 para el personaje'
     5010 pp=0:ps=1
     1 'Componente RPG=player capturas y energía o vida, se define en las pantallas'
@@ -301,9 +287,20 @@
     5100 put sprite pp,(px,py),1,ps
     1 'El sprute 0 es el swter de color amarillo, plano 1'
     5110 'put sprite pp+1,(px,py),11,0
+    1 '""pj","py","po'
+    5120 'if pj=1 and py<po-16 then py=py-2
+    5130 if pj=1 and py<po then py=py+2
+    5140 if pj=1 and py=po then pj=0:strig(0)on
+
 5190 return
 
 
+1 ' Rutina barra espaciadora pulsada'
+    1 'Ponemos un sonido de salto'
+    5200 re=10: gosub 2300
+    1 'Guardamos la posición vieja de y'
+    5210 po=py:py=py-12:pj=1:strig(0)off
+5290 return
 
 
 
@@ -332,7 +329,8 @@
     6030 ep(0)=1
     1 'El sprite de la mujer es el 0, el del perro es el 1'
     6035 es(0)=9:es(1)=13
-    1 ' Enemigo tipo'
+    1 ' en=numero de enemigos de la pantalla,
+    1 ' et=Enemigo tipo'
     6040 en=0:et(0)=0
     1 'Rutas del enemigo'
     6050 dim e(13),c(13)
@@ -374,7 +372,7 @@
     6300 ex(1)=ex(1)-ev(1)
     6305 if co mod 2=0 then es(1)=14
     6310 if co mod 2<>0 then es(1)=13
-    6320 if ex(1)<0 then ex(1)=256: ey(1)=rnd(-time)*(192-140)+140
+    6320 if ex(1)<0 then ex(1)=255:ey(1)=rnd(-time)*(192-140)+140:gosub 2900
 6390 return
 1 '1 'Renderizar niño
 1 '    6400 ex(2)=ex(2)-ev(2)
@@ -388,8 +386,8 @@
     6600 put sprite ep(0),(ex(0),ey(0)),1,es(0)
     1 'Le ponemos un 2 plano al personaje para que le pinte los brazos de color naranja, sprite 8'
     6620 'put sprite ep(0)+1,(ex(0),ey(0)),11,8
-    6630 if en=1 then put sprite 5,(ex(1),160),1,es(1)
-    6640 if en=2 then put sprite 5,(ex(1),160),1,es(1) :put sprite 6,(ex(2),160),1,es(2)
+    6630 if en=1 then put sprite 5,(ex(1),ey(1)),1,es(1)
+    6640 if en=2 then put sprite 5,(ex(1),ey(1)),1,es(1) :put sprite 6,(ex(2),ey(2)),1,es(2)
 6690 return
 
 
@@ -426,12 +424,12 @@
     7540 fc(fa)=rnd(-tile)*(9-4)+4
     1 'Borramos lo que había antes y mostramos un mensaje'
     7545 line (120,20)-(180,30),7,bf
-    7550 if fm(ft)=0 then fc(ft)=4:preset (120,20): print #1,"MSX"
-    7555 if fm(ft)=1 then fc(ft)=5:preset (120,20): print #1,"Amstrad"
-    7560  if fm(ft)=2 then fc(ft)=6:preset (120,20): print #1,"Spectrum"
-    7565  if fm(ft)=3 then fc(ft)=7:preset (120,20): print #1,"Atari"
-    7570  if fm(ft)=3 then fc(ft)=8:preset (120,20): print #1,"Comodore"
-    7575  if fm(ft)=3 then fc(ft)=9:preset (120,20): print #1,"Amiga"
+    7550 if fm(ft)=0 then fc(ft)=4:preset (125,25): print #1,"MSX"
+    7555 if fm(ft)=1 then fc(ft)=5:preset (125,25): print #1,"Amstrad"
+    7560  if fm(ft)=2 then fc(ft)=6:preset (125,25): print #1,"Spectrum"
+    7565  if fm(ft)=3 then fc(ft)=7:preset (125,25): print #1,"Atari"
+    7570  if fm(ft)=3 then fc(ft)=8:preset (125,25): print #1,"Comodore"
+    7575  if fm(ft)=3 then fc(ft)=9:preset (125,25): print #1,"Amiga"
     7580 fa=fa+1
     1 'Solo para debugger'
     7685 'gosub 2900
@@ -524,7 +522,7 @@
     1 'ml=6 = md=&hbc01
     1 'ml=7 = md=&hbe01
 
-    11110 md=&hc001
+    11110 md=&hd001
     11120 for i=0 to mm-1
         1 'Esto se podría poner desde 0 hasta 512'
         11130 for j=0 to 511
@@ -536,7 +534,8 @@
 
 
 1 'Cargar mapa del array y meterlo en la VRAM
-    11300 a=usr3(0):if ml=3 then ml=0
+    11300  bload"world0.bin",r:if ml=3 then ml=0
+    11310 'a=usr3(0)
     11320 '_turbo on(mf(),ml)
     11330 if ml=0 then gosub 12000
     11331 if ml=1 then gosub 12100:re=7:gosub 2300
@@ -550,13 +549,13 @@
         11360 vpoke 6144+256+i,mf(i,ml)
     11380 next i 
     11420 '_turbo off
-    11440 a=usr4(0)
+    11440 'a=usr4(0)
 11490 return
 1 'Modelo sin buffer, en este las líneas 11010, 11100--+ y 425 pueden ser eliminadas'
 1 '1 'Cargar mapa de disco y meterlo en la VRAM
 1 '    1 '1 cargamos el mapa
 1 '    1 'Cada mapa ocupa 862 bytes'
-1 '    1 'md=mapa dirección, la dirección c001 se la he puesto yo en el archivo binario cuando lo creé'
+1 '    1 'md=mapa dirección, la dirección d001 se la he puesto yo en el archivo binario cuando lo creé'
 1 '    1 'El archivo tan solo contiene los datos de la definición de los mapas'
 1 '    1 'Cuando se lea otro nivel se inicializarán las pantallas y sonorá una musiquilla'
 1 '    11300 bload"world0.bin",r
@@ -682,8 +681,9 @@
 1 '---------------------------------------------------------'
 1 'Init'
     1 'Objetivo coger 3 paquetes'
+    12000 in$="Coger paquetes"
     1 'pc=player capturas que tiene que hacer, pe=energia player, er modo de sie el enemigo sale aleatorio o con 1 array definido'
-    12000 pc=5:pe=30:er=0
+    12050 pc=5:pe=30:er=0
     1 'posición del player abajo en el centro'
     12010 px=100:py=150
     1 'en=numero de enemigos, el 0 solo la mujer, el 1 la mujer y el perro, el 2 la mujer el perro y el niño'
@@ -711,7 +711,7 @@
 12190 return
 
 1 '----------------------------------------------------------------'
-1 '------------------------PANTALLA 2 (ml=2) ----------------------'
+1 '------------------------PANTALLA 2 (ml=2) ----------------------' 
 1 '----------------------------------------------------------------'
 1 'Objetivo coger 3 paquete y que no te pillen'
     12200 pc=3:fa=0
